@@ -8,6 +8,7 @@ import {
   StyleSheet,
   Alert,
 } from "react-native";
+import Ionicons from "react-native-vector-icons/Ionicons"; // Import Ionicons for the eye icon
 
 const ForgotPasswordScreen = () => {
   const [email, setEmail] = useState("");
@@ -15,6 +16,8 @@ const ForgotPasswordScreen = () => {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [step, setStep] = useState(1); // 1: Email input, 2: OTP and Passwords
+  const [isPasswordVisible, setPasswordVisible] = useState(false); // Toggle for new password visibility
+  const [isConfirmPasswordVisible, setConfirmPasswordVisible] = useState(false); // Toggle for confirm password visibility
   const navigator = useNavigation();
 
   const handleSendResetLink = () => {
@@ -23,13 +26,13 @@ const ForgotPasswordScreen = () => {
   };
 
   const handleChangePassword = () => {
+    setStep(1); // Reset to step 1
     if (newPassword !== confirmPassword) {
       Alert.alert("Error", "Passwords do not match!");
       return;
     }
-
     Alert.alert("Success", "Your password has been changed!");
-    navigator.navigate("index"); 
+    navigator.navigate("index");
   };
 
   return (
@@ -68,23 +71,51 @@ const ForgotPasswordScreen = () => {
             onChangeText={(text) => setOtp(text)}
           />
 
-          <TextInput
-            style={styles.input}
-            placeholder="New Password"
-            placeholderTextColor="#888"
-            secureTextEntry
-            value={newPassword}
-            onChangeText={(text) => setNewPassword(text)}
-          />
+          {/* New Password Input with Show/Hide functionality */}
+          <View style={styles.passwordContainer}>
+            <TextInput
+              style={styles.passwordInput}
+              placeholder="New Password"
+              placeholderTextColor="#888"
+              secureTextEntry={!isPasswordVisible} // Toggle visibility
+              value={newPassword}
+              onChangeText={(text) => setNewPassword(text)}
+            />
+            <TouchableOpacity
+              style={styles.eyeIcon}
+              onPress={() => setPasswordVisible(!isPasswordVisible)}>
+              <Ionicons
+                name={isPasswordVisible ? "eye-off-outline" : "eye-outline"}
+                size={24}
+                color="#888"
+              />
+            </TouchableOpacity>
+          </View>
 
-          <TextInput
-            style={styles.input}
-            placeholder="Confirm Password"
-            placeholderTextColor="#888"
-            secureTextEntry
-            value={confirmPassword}
-            onChangeText={(text) => setConfirmPassword(text)}
-          />
+          {/* Confirm Password Input with Show/Hide functionality */}
+          <View style={styles.passwordContainer}>
+            <TextInput
+              style={styles.passwordInput}
+              placeholder="Confirm Password"
+              placeholderTextColor="#888"
+              secureTextEntry={!isConfirmPasswordVisible} // Toggle visibility
+              value={confirmPassword}
+              onChangeText={(text) => setConfirmPassword(text)}
+            />
+            <TouchableOpacity
+              style={styles.eyeIcon}
+              onPress={() =>
+                setConfirmPasswordVisible(!isConfirmPasswordVisible)
+              }>
+              <Ionicons
+                name={
+                  isConfirmPasswordVisible ? "eye-off-outline" : "eye-outline"
+                }
+                size={24}
+                color="#888"
+              />
+            </TouchableOpacity>
+          </View>
 
           <TouchableOpacity
             style={styles.resetButton}
@@ -96,7 +127,10 @@ const ForgotPasswordScreen = () => {
 
       <TouchableOpacity
         style={styles.backButton}
-        onPress={() => navigator.navigate("index")}>
+        onPress={() => {
+          setStep(1);
+          navigator.navigate("index");
+        }}>
         <Text style={styles.backButtonText}>Back to Login</Text>
       </TouchableOpacity>
     </View>
@@ -133,6 +167,25 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     color: "#333",
     fontSize: 16,
+  },
+  passwordContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 8,
+    marginBottom: 20,
+    backgroundColor: "#fff",
+  },
+  passwordInput: {
+    flex: 1,
+    height: 50,
+    paddingHorizontal: 15,
+    color: "#333",
+    fontSize: 16,
+  },
+  eyeIcon: {
+    paddingHorizontal: 15,
   },
   resetButton: {
     backgroundColor: "#007bff",
