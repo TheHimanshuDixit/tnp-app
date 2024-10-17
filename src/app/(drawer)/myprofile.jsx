@@ -14,22 +14,59 @@ import { ScrollView } from "react-native-gesture-handler";
 
 const MyProfile = () => {
   const [profile, setProfile] = useState({
-    enroll: "123456789",
-    coverletter: "This is a sample cover letter.",
-    email: "sample@example.com",
-    college: "Sample College",
-    phone: "123-456-7890",
-    branch: "Computer Science",
-    gender: "Male",
-    year: "Final",
-    cgpa: "9.2",
-    backlogs: "0",
+    enroll: "",
+    coverletter: "",
+    email: "",
+    college: "",
+    phone: "",
+    branch: "",
+    gender: "",
+    year: "",
+    cgpa: "",
+    backlogs: "",
   });
 
-  const [fname, setFname] = useState("John");
-  const [lname, setLname] = useState("Doe");
+  const [fname, setFname] = useState("");
+  const [lname, setLname] = useState("");
   const [resume, setResume] = useState(null);
   const [profilePhoto, setProfilePhoto] = useState(null);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const res = await fetch("http://10.0.2.2:4000/api/auth/profile", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "auth-token":
+              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2MjQxM2E4NGRkMzY1MTc0NGY5ZDI2MyIsImlhdCI6MTcyOTExMjk5OCwiZXhwIjoxNzI5MTk5Mzk4fQ.8VZhYaCOCTBtwOUWIjHnMkAGOpxz1_hye-4pEUq_l64",
+          },
+        });
+
+        const data = await res.json();
+        setProfile({
+          enroll: data.enrollnment,
+          coverletter: data.coverletter,
+          email: data.email,
+          college: data.college,
+          phone: data.phoneno,
+          branch: data.branch,
+          gender: data.gender,
+          year: data.year,
+          cgpa: data.cgpa,
+          backlogs: data.backlogs,
+        });
+        setResume(data.resume);
+        setFname(data.name.split(" ")[0]);
+        setLname(data.name.split(" ")[1]);
+        setProfilePhoto(data.image); // Load profile image from the backend
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    fetchProfile();
+  }, []);
 
   const handleImagePicker = async () => {
     const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
@@ -69,9 +106,55 @@ const MyProfile = () => {
     if (name === "lname") setLname(value);
   };
 
-  const handleSave = () => {
-    Alert.alert("Profile updated successfully");
-    // Implement save logic or state management as needed
+  const handleSave = async () => {
+    try {
+      const formData = new FormData();
+      formData.append("name", `${fname} ${lname}`);
+      formData.append("email", profile.email);
+      formData.append("enroll", profile.enroll);
+      formData.append("coverletter", profile.coverletter);
+      formData.append("college", profile.college);
+      formData.append("phone", profile.phone);
+      formData.append("branch", profile.branch);
+      formData.append("year", profile.year);
+      formData.append("cgpa", profile.cgpa);
+      formData.append("backlogs", profile.backlogs);
+      formData.append("gender", profile.gender);
+      if (resume) {
+        formData.append("resume", {
+          uri: resume.uri,
+          type: "application/pdf",
+          name: resume.name,
+        });
+      }
+      if (profilePhoto) {
+        formData.append("profilePhoto", {
+          uri: profilePhoto,
+          type: "image/jpeg",
+          name: "profile.jpg",
+        });
+      }
+
+      const res = await fetch("http://10.0.2.2:4000/api/auth/profile", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "multipart/form-data",
+          "auth-token":
+            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2MjQxM2E4NGRkMzY1MTc0NGY5ZDI2MyIsImlhdCI6MTcyOTExMjk5OCwiZXhwIjoxNzI5MTk5Mzk4fQ.8VZhYaCOCTBtwOUWIjHnMkAGOpxz1_hye-4pEUq_l64",
+        },
+        body: formData,
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        Alert.alert("Profile updated successfully");
+      } else {
+        Alert.alert("Failed to update profile", data.message);
+      }
+    } catch (error) {
+      console.log(error);
+      Alert.alert("An error occurred while updating the profile.");
+    }
   };
 
   return (
@@ -88,7 +171,9 @@ const MyProfile = () => {
               source={
                 profilePhoto
                   ? { uri: profilePhoto }
-                  : require("../../assets/images/Himanshu.jpg") // replace with your placeholder image
+                  : {
+                      uri: "https://th.bing.com/th/id/OIP.PoS7waY4-VeqgNuBSxVUogAAAA?rs=1&pid=ImgDetMain",
+                    }
               }
               style={{ width: 100, height: 100, borderRadius: 50 }}
             />
@@ -204,6 +289,7 @@ const MyProfile = () => {
           }}
         />
 
+        {/* Additional fields for gender, year, CGPA, backlogs */}
         <TextInput
           placeholder="Year"
           value={profile.year}
@@ -256,16 +342,10 @@ const MyProfile = () => {
           }}
         />
 
-        {/* Resume Section */}
-        <View style={{ marginVertical: 20 }}>
-          <Text style={{ fontSize: 18, fontWeight: "bold", marginBottom: 10 }}>
-            My Resume
-          </Text>
-          <TouchableOpacity onPress={handleResumePicker}>
-            <Text style={{ color: "blue" }}>
-              {resume ? resume.name : "Select Resume"}
-            </Text>
-          </TouchableOpacity>
+        {/* Resume Upload Section */}
+        <View style={{ marginBottom: 20 }}>
+          <Button title="Upload Resume" onPress={handleResumePicker} />
+          {resume && <Text>Resume uploaded: {resume.name}</Text>}
         </View>
 
         <Button title="Save" onPress={handleSave} />

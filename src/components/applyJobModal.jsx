@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
+  Alert,
 } from "react-native";
 import * as DocumentPicker from "expo-document-picker";
 
@@ -14,6 +15,7 @@ const ApplyJobModal = ({
   applyModalVisible,
   setApplyModalVisible,
   selectedJob,
+  allCompanies,
 }) => {
   const [form, setForm] = useState({
     name: "",
@@ -21,9 +23,13 @@ const ApplyJobModal = ({
     enrollment: "",
     phone: "",
     branch: "",
+    cgpa: "",
     gender: "",
     resume: null,
   });
+  const [placed, setPlaced] = useState(false);
+  const [studentPackage, setStudentPackage] = useState("0");
+  const [getResume, setGetResume] = useState("");
 
   const handleInputChange = (field, value) => {
     setForm({ ...form, [field]: value });
@@ -36,11 +42,91 @@ const ApplyJobModal = ({
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async() => {
     // handle form submission logic here
-    console.log("Form Data:", form);
+    if (
+      form.cgpa >= selectedJob.cgpacritera &&
+      (placed === false ||
+        (placed === true &&
+          parseInt(studentPackage) >= 1.8 * parseInt(selectedJob.ctc)))
+    ) {
+      const formData = new FormData();
+      formData.append("name", form.name);
+      formData.append("email", form.email);
+      if (form.resume) {
+        formData.append("resume", form.resume);
+      } else {
+        formData.append("resume", getResume);
+      }
+      formData.append("enroll", form.enrollment);
+      formData.append("gender", form.gender);
+      formData.append("phone", form.phone);
+      formData.append("branch", form.branch);
+      const response = await fetch(
+        `http://10.0.2.2:4000/api/application/add/${cid}`,
+        {
+          method: "POST",
+          headers: {
+            "auth-token":
+              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2MjQxM2E4NGRkMzY1MTc0NGY5ZDI2MyIsImlhdCI6MTcyOTExMjk5OCwiZXhwIjoxNzI5MTk5Mzk4fQ.8VZhYaCOCTBtwOUWIjHnMkAGOpxz1_hye-4pEUq_l64",
+          },
+          body: formData,
+        }
+      );
+      const data = await response.json();
+      if (data.message === "success") {
+        Alert.alert("Applied Successfully");
+      } else {
+        Alert.alert("Already Applied");
+      }
+    } else {
+      Alert.alert("You are not eligible for this job");
+    }
     setApplyModalVisible(false);
   };
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const res = await fetch("http://10.0.2.2:4000/api/auth/profile", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "auth-token":
+              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2MjQxM2E4NGRkMzY1MTc0NGY5ZDI2MyIsImlhdCI6MTcyOTExMjk5OCwiZXhwIjoxNzI5MTk5Mzk4fQ.8VZhYaCOCTBtwOUWIjHnMkAGOpxz1_hye-4pEUq_l64",
+          },
+        });
+
+        const data = await res.json();
+        setForm({
+          name: data.name,
+          email: data.email,
+          enrollment: data.enrollnment,
+          phone: data.phoneno,
+          branch: data.branch,
+          cgpa: data.cgpa,
+          gender: data.gender,
+          // resume: data.resume,
+        });
+        setPlaced(data.placed);
+        for (let i = 0; i < allCompanies.length; i++) {
+          if (
+            data.companys.includes(allCompanies[i]._id) &&
+            allCompanies[i].ctc > comp
+          ) {
+            setStudentPackage(allCompanies[i].ctc);
+          }
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    fetchProfile();
+  }, []);
+
+  
+
   return (
     <Modal
       animationType="slide"

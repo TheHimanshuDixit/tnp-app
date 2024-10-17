@@ -6,6 +6,7 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
+  Alert,
 } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
 
@@ -16,8 +17,23 @@ const Login = () => {
 
   const navigator = useNavigation();
 
-  const handleLogin = () => {
-    navigator.navigate("(drawer)");
+  const handleLogin = async (e) => {
+    // e.preventDefault();
+    // console.log(email, password);
+    const response = await fetch("http://10.0.2.2:4000/api/auth/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email, password }),
+    });
+    const data = await response.json();
+    if (data.message === "success") {
+      Alert.alert("Login successful");
+      navigator.navigate("(drawer)");
+    } else {
+      Alert.alert("Login failed");
+    }
   };
 
   const handleForgotPassword = () => {

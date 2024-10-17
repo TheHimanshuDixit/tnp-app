@@ -1,39 +1,50 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, Image, StyleSheet, ScrollView } from "react-native";
 
 const Team = () => {
   // Sample data to replace API response
-  const teams = [
-    {
-      _id: "1",
-      name: "John Doe",
-      email: "john@example.com",
-      position: "Developer",
-      image: "https://via.placeholder.com/150",
-    },
-    {
-      _id: "2",
-      name: "Jane Smith",
-      email: "jane@example.com",
-      position: "Designer",
-      image: "https://via.placeholder.com/150",
-    },
-    {
-      _id: "3",
-      name: "Alice Johnson",
-      email: "alice@example .com",
-      position: "Manager",
-      image: "https://via.placeholder.com/150",
-    },
-    {
-      _id: "4",
-      name: "Bob Brown",
-      email: "bob@ example.com",
-      position: "Tester",
-      image: "https://via.placeholder.com/150",
-    },
-    // Add more team members as needed
-  ];
+  // const teams = [
+  //   {
+  //     _id: "1",
+  //     name: "John Doe",
+  //     email: "john@example.com",
+  //     position: "Developer",
+  //     image: "https://via.placeholder.com/150",
+  //   },
+  //   {
+  //     _id: "2",
+  //     name: "Jane Smith",
+  //     email: "jane@example.com",
+  //     position: "Designer",
+  //     image: "https://via.placeholder.com/150",
+  //   },
+  //   {
+  //     _id: "3",
+  //     name: "Alice Johnson",
+  //     email: "alice@example .com",
+  //     position: "Manager",
+  //     image: "https://via.placeholder.com/150",
+  //   },
+  //   {
+  //     _id: "4",
+  //     name: "Bob Brown",
+  //     email: "bob@ example.com",
+  //     position: "Tester",
+  //     image: "https://via.placeholder.com/150",
+  //   },
+  //   // Add more team members as needed
+  // ];
+
+  const [teams, setTeams] = useState([]);
+
+  useEffect(() => {
+    //eslint-disable-next-line
+    const data = (async () => {
+      const response = await fetch("http://10.0.2.2:4000/api/team/get");
+      const data = await response.json();
+      setTeams(data.data);
+    })();
+  }, []);
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -87,7 +98,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-around",
   },
   card: {
-    width: "45%", // Adjust width based on design
+    width: "80%", // Adjust width based on design
     marginBottom: 20,
     backgroundColor: "#fff",
     borderRadius: 8,

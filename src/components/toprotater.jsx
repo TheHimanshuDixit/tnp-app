@@ -1,12 +1,12 @@
 import React, { useEffect, useRef } from "react";
-import { View, Text, Animated, StyleSheet, Dimensions } from "react-native";
+import { View, Animated, StyleSheet, Dimensions } from "react-native";
 
 const { width: screenWidth } = Dimensions.get("window");
 
 const MarqueeSingleLine = () => {
   const animatedValue = useRef(new Animated.Value(0)).current;
   const noticeText =
-    "Highest Package of 62 LPA - One offer";
+    "Highest Package of 62 LPA offered by Atlassian";
 
   useEffect(() => {
     Animated.loop(

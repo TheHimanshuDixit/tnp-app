@@ -16,12 +16,26 @@ const Contact = () => {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
 
-  const handleSubmit = () => {
-    Alert.alert(
-      "Form Submission",
-      `Name: ${name}\nEmail: ${email}\nMessage: ${message}`
-    );
-    // You can add further logic for submission here, like API calls, etc.
+  const handleSubmit = async () => {
+    const response = await fetch("http://10.0.2.2:4000/api/contact/send", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ name, email, message }),
+    });
+    const data = await response.json();
+    if (data.message === "Email sent") {
+      setEmail("");
+      setName("");
+      setMessage("");
+      Alert.alert(
+        "Form Submission",
+        `Name: ${name}\nEmail: ${email}\nMessage: ${message}`
+      );
+    } else {
+      alert("Error Occurs");
+    }
   };
 
   return (

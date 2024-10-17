@@ -5,6 +5,7 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
+  Alert,
 } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { useNavigation } from "expo-router";
@@ -12,20 +13,34 @@ import { useNavigation } from "expo-router";
 const SignupScreen = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [phoneNo, setPhoneNo] = useState("");
-  const [enrollmentNo, setEnrollmentNo] = useState("");
+  const [phoneno, setPhoneno] = useState("");
+  const [enrollnment, setEnrollnment] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState(""); // Confirm password state
   const [isPasswordVisible, setPasswordVisible] = useState(false); // State to toggle password visibility
   const [isConfirmPasswordVisible, setConfirmPasswordVisible] = useState(false); // State to toggle confirm password visibility
   const navigator = useNavigation();
 
-  const handleSignup = () => {
+  const handleSignup = async (e) => {
+    e.preventDefault();
     if (password !== confirmPassword) {
-      alert("Passwords do not match!");
+      Alert.alert("Error", "Passwords do not match");
       return;
     }
-    navigator.navigate("index");
+    const response = await fetch("http://10.0.2.2:4000/api/auth/signup", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ name, email, enrollnment, password, phoneno }),
+    });
+    const data = await response.json();
+    if (data.message === "success") {
+      Alert.alert("Success", "Signup successful");
+      navigator.navigate("index");
+    } else {
+      Alert.alert("Error", "Signup failed");
+    }
   };
 
   return (
@@ -54,16 +69,16 @@ const SignupScreen = () => {
         placeholder="Phone No."
         placeholderTextColor="#888"
         keyboardType="phone-pad"
-        value={phoneNo}
-        onChangeText={(text) => setPhoneNo(text)}
+        value={phoneno}
+        onChangeText={(text) => setPhoneno(text)}
       />
 
       <TextInput
         style={styles.input}
         placeholder="Enrollment No."
         placeholderTextColor="#888"
-        value={enrollmentNo}
-        onChangeText={(text) => setEnrollmentNo(text)}
+        value={enrollnment}
+        onChangeText={(text) => setEnrollnment(text)}
       />
 
       {/* Password Input */}

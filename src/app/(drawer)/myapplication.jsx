@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Modal,
   View,
@@ -7,42 +7,79 @@ import {
   TouchableOpacity,
   StyleSheet,
 } from "react-native";
-import Icon from "react-native-vector-icons/FontAwesome"; 
+import Icon from "react-native-vector-icons/FontAwesome";
 
 const Myapplications = () => {
-  const [applications, setApplications] = useState([
-    {
-      id: "1",
-      companyName: "Google",
-      jobTitle: "Software Engineer",
-      applicationDate: "2024-09-15",
-    },
-    {
-      id: "2",
-      companyName: "Facebook",
-      jobTitle: "Data Scientist",
-      applicationDate: "2024-09-12",
-    },
-  ]);
-
+  const [applications, setApplications] = useState([]);
+  const [company, setCompany] = useState({});
   const [viewCompany, setViewCompany] = useState({});
   const [modalVisible, setModalVisible] = useState(false);
 
-  const handleOpenModal = (company) => {
-    setViewCompany(company);
-    setModalVisible(true);
+  // Open modal to view company details
+  const handleOpenModal = (application) => {
+    const selectedCompany = company[application.company];
+    if (selectedCompany) {
+      setViewCompany(selectedCompany);
+      setModalVisible(true);
+    }
   };
 
-  const renderItem = ({ item, index }) => (
+  // Fetch applications and company data
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Fetch applications
+        const applicationResponse = await fetch(
+          "http://10.0.2.2:4000/api/application/get",
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              "auth-token":
+                "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2MjQxM2E4NGRkMzY1MTc0NGY5ZDI2MyIsImlhdCI6MTcyOTExMjk5OCwiZXhwIjoxNzI5MTk5Mzk4fQ.8VZhYaCOCTBtwOUWIjHnMkAGOpxz1_hye-4pEUq_l64",
+            },
+          }
+        );
+        const applicationData = await applicationResponse.json();
+        setApplications(applicationData.data);
+
+        // Fetch company details (openings)
+        const companyResponse = await fetch(
+          "http://10.0.2.2:4000/api/opening/getall"
+        );
+        const companyData = await companyResponse.json();
+        const companyMap = {};
+        companyData.data.forEach((opening) => {
+          companyMap[opening._id] = opening;
+        });
+        setCompany(companyMap);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  // Render a single application item
+  const renderItem = ({ item: application, index }) => (
     <View style={styles.item}>
       <Text style={styles.index}>{index + 1}.</Text>
-      <Text style={styles.companyName}>{item.companyName}</Text>
-      <Text style={styles.jobTitle}>{item.jobTitle}</Text>
-      <Text style={styles.applicationDate}>{item.applicationDate}</Text>
+      <Text style={styles.companyName}>
+        {company[application.company]?.name || "Unknown Company"}
+      </Text>
+      <Text style={styles.jobTitle}>
+        {company[application.company]?.jobId || "Unknown Job"}
+      </Text>
+      <Text style={styles.applicationDate}>
+        {application.date.split("T")[1].split(".")[0] +
+          ", " +
+          application.date.split("T")[0]}
+      </Text>
       <TouchableOpacity
         style={styles.viewButton}
-        onPress={() => handleOpenModal(item)}>
-        <Icon name="eye" size={20} color="#fff" /> 
+        onPress={() => handleOpenModal(application)}>
+        <Icon name="eye" size={20} color="#fff" />
       </TouchableOpacity>
     </View>
   );
@@ -56,7 +93,7 @@ const Myapplications = () => {
       <FlatList
         data={applications}
         renderItem={renderItem}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item._id} // Assuming _id is unique
         contentContainerStyle={styles.list}
       />
       <Modal visible={modalVisible} transparent={true} animationType="slide">
@@ -64,13 +101,54 @@ const Myapplications = () => {
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Company Details</Text>
             <Text style={styles.modalItem}>
-              Name: {viewCompany.companyName}
+              <Text style={styles.modalLabel}>Name:</Text> {viewCompany.name}
             </Text>
             <Text style={styles.modalItem}>
-              Job Title: {viewCompany.jobTitle}
+              <Text style={styles.modalLabel}>Job Title:</Text> {viewCompany.jobId}
             </Text>
             <Text style={styles.modalItem}>
-              Application Date: {viewCompany.applicationDate}
+              <Text style={styles.modalLabel}>Role:</Text> {viewCompany.role}
+            </Text>
+            <Text style={styles.modalItem}>
+              <Text style={styles.modalLabel}>Stipend:</Text> {viewCompany.stipend}
+            </Text>
+            <Text style={styles.modalItem}>
+              <Text style={styles.modalLabel}>CTC:</Text> {viewCompany.ctc}
+            </Text>
+            <Text style={styles.modalItem}>
+              <Text style={styles.modalLabel}>Min CGPA:</Text> {viewCompany.cgpacritera}
+            </Text>
+            <Text style={styles.modalItem}>
+              <Text style={styles.modalLabel}>Backlogs:</Text> {viewCompany.backlog}
+            </Text>
+            <Text style={styles.modalItem}>
+              <Text style={styles.modalLabel}>Branches:</Text>{" "}
+              {Array.isArray(viewCompany.branch)
+                ? viewCompany.branch.join(", ")
+                : "N/A"}
+            </Text>
+            <Text style={styles.modalItem}>
+              <Text style={styles.modalLabel}>Locations:</Text>{" "}
+              {Array.isArray(viewCompany.location)
+                ? viewCompany.location.join(", ")
+                : "N/A"}
+            </Text>
+            <Text style={styles.modalItem}>
+              <Text style={styles.modalLabel}>Gender:</Text> {viewCompany.gender}
+            </Text>
+            <Text style={styles.modalItem}>
+              <Text style={styles.modalLabel}>Mode:</Text> {viewCompany.mode}
+            </Text>
+            <Text style={styles.modalItem}>
+              <Text style={styles.modalLabel}>Duration:</Text> {viewCompany.duration}
+            </Text>
+            <Text style={styles.modalItem}>
+              <Text style={styles.modalLabel}>Application Date:</Text>{" "}
+              {viewCompany.applyby
+                ? viewCompany.applyby.split("T")[1].split(".")[0] +
+                  ", " +
+                  viewCompany.applyby.split("T")[0]
+                : "N/A"}
             </Text>
             <TouchableOpacity
               style={styles.closeButton}
@@ -118,8 +196,9 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   companyName: {
-    fontSize: 16,
+    fontSize: 15,
     flex: 1,
+    marginRight:5
   },
   jobTitle: {
     fontSize: 14,
@@ -157,13 +236,18 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   modalTitle: {
-    fontSize: 20,
+    fontSize: 25,
     fontWeight: "bold",
-    marginBottom: 10,
+    marginBottom: 20,
+    textAlign: "center",
+  },
+  modalLabel: {
+    fontWeight: "bold",
   },
   modalItem: {
     fontSize: 16,
-    marginBottom: 10,
+    marginBottom: 15,
+    borderBottomWidth: 0.5,
   },
   closeButton: {
     backgroundColor: "#007bff",

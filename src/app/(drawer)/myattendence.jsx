@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -8,32 +8,54 @@ import {
   FlatList,
 } from "react-native";
 import { Table, Row } from "react-native-table-component";
+import { LogBox } from "react-native";
+
+LogBox.ignoreLogs(["Invalid prop textStyle of type array supplied to Cell"]);
 
 const PlacementAttendance = () => {
-  // Dummy data for companies and their attendance
-  const [companies] = useState([
-    { id: "1", name: "Company A" },
-    { id: "2", name: "Company B" },
-    { id: "3", name: "Company C" },
-  ]);
-
-  const [attendanceData, setAttendanceData] = useState({
-    "Company A": [
-      { event: "PPT", date: "2024-10-01", status: "Present" },
-      { event: "OA", date: "2024-10-02", status: "Absent" },
-      { event: "Interviews", date: "2024-10-03", status: "Present" },
-    ],
-    "Company B": [
-      { event: "PPT", date: "2024-10-04", status: "Present" },
-      { event: "OA", date: "2024-10-05", status: "Absent" },
-    ],
-    "Company C": [
-      { event: "Interviews", date: "2024-10-06", status: "Present" },
-    ],
-  });
-
+  const [companies, setCompanies] = useState([]);
+  const [attendanceData, setAttendanceData] = useState({});
   const [selectedCompany, setSelectedCompany] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
+
+  useEffect(() => {
+    // Fetch attendance data from API
+    fetch("http://10.0.2.2:4000/api/student", {
+      method: "GET",
+      headers: {
+        "auth-token":
+          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2MjQxM2E4NGRkMzY1MTc0NGY5ZDI2MyIsImlhdCI6MTcyOTExMjk5OCwiZXhwIjoxNzI5MTk5Mzk4fQ.8VZhYaCOCTBtwOUWIjHnMkAGOpxz1_hye-4pEUq_l64", // Replace with your actual token
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        const fetchedCompanies = data.data.map((item, index) => ({
+          id: (index + 1).toString(), // Convert index to string for ID
+          name: item.company.name,
+        }));
+
+        const fetchedAttendanceData = data.data.reduce((acc, item) => {
+          const companyName = item.company.name;
+          acc[companyName] = item.event.map((e) => ({
+            event: e.event,
+            date: new Date(e.date).toLocaleDateString("en-GB"), // Format date as DD/MM/YYYY
+            status: "Present", // Default status
+          }));
+          return acc;
+        }, {});
+
+        // Handle companies with no events
+        fetchedCompanies.forEach((company) => {
+          if (!fetchedAttendanceData[company.name]) {
+            fetchedAttendanceData[company.name] = []; // Add empty array if no events
+          }
+        });
+
+        setCompanies(fetchedCompanies);
+        setAttendanceData(fetchedAttendanceData);
+      })
+      .catch((error) => console.error(error));
+  }, []);
 
   const openAttendanceModal = (company) => {
     setSelectedCompany(company);
@@ -52,12 +74,13 @@ const PlacementAttendance = () => {
 
     return (
       <Table borderStyle={styles.tableBorder}>
-        <Row data={tableHead} style={[styles.head, styles.text]} />
+        <Row data={tableHead} style={styles.head} textStyle={styles.text} />
         {tableData.map((rowData, index) => (
           <Row
             key={index}
             data={rowData}
-            style={[styles.row, styles.text]} 
+            style={styles.row}
+            textStyle={styles.text}
           />
         ))}
       </Table>
@@ -134,11 +157,12 @@ const styles = StyleSheet.create({
     backgroundColor: "#f1f8ff",
   },
   row: {
-    height: 30,
+    height: 60,
     backgroundColor: "#fff",
   },
   text: {
     margin: 6,
+    marginBottom: 0,
   },
   closeButton: {
     marginTop: 20,

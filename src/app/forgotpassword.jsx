@@ -19,20 +19,60 @@ const ForgotPasswordScreen = () => {
   const [isPasswordVisible, setPasswordVisible] = useState(false); // Toggle for new password visibility
   const [isConfirmPasswordVisible, setConfirmPasswordVisible] = useState(false); // Toggle for confirm password visibility
   const navigator = useNavigation();
+  const [otpSent, setOtpSent] = useState("");
 
-  const handleSendResetLink = () => {
+  const handleSendResetLink = async (e) => {
     // Here you can add the logic to send the reset link (e.g., API call)
-    setStep(2); // Move to the next step
+    e.preventDefault();
+    const data = await fetch("http://10.0.2.2:4000/api/auth/forgot", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email }),
+    });
+    const response = await data.json();
+    if (response.message === "Email sent") {
+      setOtpSent(response.otp);
+      setStep(2);
+      setNewPassword("");
+      setConfirmPassword("");
+      setOtp("");
+    }
   };
 
-  const handleChangePassword = () => {
+  const handleChangePassword = async (e) => {
     setStep(1); // Reset to step 1
+    e.preventDefault();
     if (newPassword !== confirmPassword) {
       Alert.alert("Error", "Passwords do not match!");
       return;
     }
-    Alert.alert("Success", "Your password has been changed!");
-    navigator.navigate("index");
+    if (
+      otp === "" ||
+      oldPassword === "" ||
+      newPassword === "" ||
+      confirmPassword === ""
+    ) {
+      Alert.alert("Error", "Please fill in all fields!");
+      return;
+    }
+    if (parseInt(otp) !== parseInt(otpSent)) {
+      Alert.alert("Error", "Invalid OTP!");
+      return;
+    }
+    const data = await fetch("http://10.0.2.2:4000/api/auth/updatepassword", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email, newPassword }),
+    });
+    const response = await data.json();
+    if (response.message === "success") {
+      Alert.alert("Success", "Your password has been changed!");
+      navigator.navigate("index");
+    }
   };
 
   return (

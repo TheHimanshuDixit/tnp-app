@@ -32,7 +32,7 @@ const JobDetailsModal = ({
             {selectedJob && (
               <View>
                 <Text style={styles.modalItemTitle}>Name:</Text>
-                <Text style={styles.modalItemValue}>{selectedJob.company}</Text>
+                <Text style={styles.modalItemValue}>{selectedJob.name}</Text>
 
                 <Text style={styles.modalItemTitle}>JobID:</Text>
                 <Text style={styles.modalItemValue}>{selectedJob.jobId}</Text>
@@ -42,47 +42,51 @@ const JobDetailsModal = ({
 
                 <Text style={styles.modalItemTitle}>Internship Stipend:</Text>
                 <Text style={styles.modalItemValue}>
-                  {selectedJob.internshipStipend} PM
+                  {selectedJob.stipend} PM
                 </Text>
 
                 <Text style={styles.modalItemTitle}>Company CTC:</Text>
-                <Text style={styles.modalItemValue}>
-                  {selectedJob.companyCtc} LPA
-                </Text>
+                <Text style={styles.modalItemValue}>{selectedJob.ctc} LPA</Text>
 
                 <Text style={styles.modalItemTitle}>Minimum CGPA:</Text>
-                <Text style={styles.modalItemValue}>{selectedJob.minCgpa}</Text>
+                <Text style={styles.modalItemValue}>
+                  {selectedJob.cgpacritera}
+                </Text>
 
                 <Text style={styles.modalItemTitle}>Maximum Backlogs:</Text>
-                <Text style={styles.modalItemValue}>
-                  {selectedJob.maxBacklogs}
-                </Text>
+                <Text style={styles.modalItemValue}>{selectedJob.backlog}</Text>
 
                 <Text style={styles.modalItemTitle}>Applicable Branches:</Text>
                 <Text style={styles.modalItemValue}>
-                  {selectedJob.branches}
+                  {selectedJob.branch.length > 0
+                    ? selectedJob.branch.map((branch) => branch + ", ")
+                    : "All"}
                 </Text>
 
                 <Text style={styles.modalItemTitle}>Location:</Text>
                 <Text style={styles.modalItemValue}>
-                  {selectedJob.location}
+                  {selectedJob.location.length > 0
+                    ? selectedJob.location.map((loc) => loc + ", ")
+                    : "Remote"}
                 </Text>
 
                 <Text style={styles.modalItemTitle}>Gender:</Text>
                 <Text style={styles.modalItemValue}>{selectedJob.gender}</Text>
 
                 <Text style={styles.modalItemTitle}>Mode:</Text>
-                <Text style={styles.modalItemValue}>
-                  {selectedJob.location}
-                </Text>
+                <Text style={styles.modalItemValue}>{selectedJob.mode}</Text>
 
                 <Text style={styles.modalItemTitle}>Duration:</Text>
                 <Text style={styles.modalItemValue}>
-                  {selectedJob.schedule}
+                  {selectedJob.duration}
                 </Text>
 
                 <Text style={styles.modalItemTitle}>Apply By:</Text>
-                <Text style={styles.modalItemValue}>{selectedJob.applyBy}</Text>
+                <Text style={styles.modalItemValue}>
+                  {selectedJob.applyby.split("T")[1].split(".")[0] +
+                    ", " +
+                    selectedJob.applyby.split("T")[0]}
+                </Text>
               </View>
             )}
             <View style={styles.modalButtons}>

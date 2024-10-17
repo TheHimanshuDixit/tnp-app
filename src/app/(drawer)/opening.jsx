@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -6,99 +6,100 @@ import {
   FlatList,
   TouchableOpacity,
   Image,
+  Alert,
 } from "react-native";
 import { MaterialIcons, FontAwesome } from "@expo/vector-icons";
 import JobDetailsModal from "../../components/jobDetailsModal";
 import ApplyJobModal from "../../components/applyJobModal";
 
 // Extended mock data for job listings
-const jobData = [
-  {
-    id: "1",
-    company: "MakeMyTrip",
-    role: "SDE",
-    salary: "35000/Month",
-    location: "Bangalore",
-    schedule: "Full Time",
-    type: "Intern+FTE",
-    details:
-      "MakeMyTrip is hiring SDE for Full-time In-Office role at a monthly stipend of 35,000.",
-    logo: "https://play-lh.googleusercontent.com/19I7zjhAAAud9AztLiIxD1MYVdHusoeaW2-7Fx2FUJvcVZBbUBcGKjBBVPsHkFBLWMs=s256-rw",
-    jobId: "10000",
-    internshipStipend: "35000",
-    companyCtc: "2550000",
-    minCgpa: "7.0",
-    maxBacklogs: "0",
-    branches: "CSE, IT",
-    gender: "No restriction",
-    applyBy: "2025-05-03 02:39:00",
-  },
-  {
-    id: "2",
-    company: "Microsoft",
-    role: "SDE",
-    salary: "0/Month",
-    location: "In-Office",
-    schedule: "Full Time",
-    type: "FTE",
-    details: "Microsoft is hiring SDE for Full-time In-Office role.",
-    logo: "https://play-lh.googleusercontent.com/19I7zjhAAAud9AztLiIxD1MYVdHusoeaW2-7Fx2FUJvcVZBbUBcGKjBBVPsHkFBLWMs=s256-rw",
-    jobId: "10001",
-    internshipStipend: "N/A",
-    companyCtc: "2000000",
-    minCgpa: "8.0",
-    maxBacklogs: "1",
-    branches: "CSE, ECE, IT",
-    gender: "No restriction",
-    applyBy: "2025-04-01 11:00:00",
-  },
-  {
-    id: "3",
-    company: "Amazon",
-    role: "SDE",
-    salary: "0/Month",
-    location: "Bangalore",
-    schedule: "Full Time",
-    type: "FTE",
-    details: "Amazon is hiring SDE for Full-time In-Office role.",
-    logo: "https://play-lh.googleusercontent.com/19I7zjhAAAud9AztLiIxD1MYVdHusoeaW2-7Fx2FUJvcVZBbUBcGKjBBVPsHkFBLWMs=s256-rw",
-    jobId: "10002",
-    internshipStipend: "N/A",
-    companyCtc: "2800000",
-    minCgpa: "7.5",
-    maxBacklogs: "1",
-    branches: "CSE, ECE",
-    gender: "No restriction",
-    applyBy: "2025-06-01 12:00:00",
-  },
-  {
-    id: "4",
-    company: "Google",
-    role: "Software Engineer",
-    salary: "45000/Month",
-    location: "Remote",
-    schedule: "Full Time",
-    type: "Intern+FTE",
-    details: "Google is hiring Software Engineers for Remote Full-time role.",
-    logo: "https://play-lh.googleusercontent.com/19I7zjhAAAud9AztLiIxD1MYVdHusoeaW2-7Fx2FUJvcVZBbUBcGKjBBVPsHkFBLWMs=s256-rw",
-    jobId: "10003",
-    internshipStipend: "45000",
-    companyCtc: "3000000",
-    minCgpa: "8.5",
-    maxBacklogs: "0",
-    branches: "CSE, ECE, IT",
-    gender: "No restriction",
-    applyBy: "2025-07-15 10:00:00",
-  },
-];
+// const jobData = [
+//   {
+//     id: "1",
+//     company: "MakeMyTrip",
+//     role: "SDE",
+//     salary: "35000/Month",
+//     location: "Bangalore",
+//     schedule: "Full Time",
+//     type: "Intern+FTE",
+//     details:
+//       "MakeMyTrip is hiring SDE for Full-time In-Office role at a monthly stipend of 35,000.",
+//     logo: "https://play-lh.googleusercontent.com/19I7zjhAAAud9AztLiIxD1MYVdHusoeaW2-7Fx2FUJvcVZBbUBcGKjBBVPsHkFBLWMs=s256-rw",
+//     jobId: "10000",
+//     internshipStipend: "35000",
+//     companyCtc: "2550000",
+//     minCgpa: "7.0",
+//     maxBacklogs: "0",
+//     branches: "CSE, IT",
+//     gender: "No restriction",
+//     applyBy: "2025-05-03 02:39:00",
+//   },
+//   {
+//     id: "2",
+//     company: "Microsoft",
+//     role: "SDE",
+//     salary: "0/Month",
+//     location: "In-Office",
+//     schedule: "Full Time",
+//     type: "FTE",
+//     details: "Microsoft is hiring SDE for Full-time In-Office role.",
+//     logo: "https://play-lh.googleusercontent.com/19I7zjhAAAud9AztLiIxD1MYVdHusoeaW2-7Fx2FUJvcVZBbUBcGKjBBVPsHkFBLWMs=s256-rw",
+//     jobId: "10001",
+//     internshipStipend: "N/A",
+//     companyCtc: "2000000",
+//     minCgpa: "8.0",
+//     maxBacklogs: "1",
+//     branches: "CSE, ECE, IT",
+//     gender: "No restriction",
+//     applyBy: "2025-04-01 11:00:00",
+//   },
+//   {
+//     id: "3",
+//     company: "Amazon",
+//     role: "SDE",
+//     salary: "0/Month",
+//     location: "Bangalore",
+//     schedule: "Full Time",
+//     type: "FTE",
+//     details: "Amazon is hiring SDE for Full-time In-Office role.",
+//     logo: "https://play-lh.googleusercontent.com/19I7zjhAAAud9AztLiIxD1MYVdHusoeaW2-7Fx2FUJvcVZBbUBcGKjBBVPsHkFBLWMs=s256-rw",
+//     jobId: "10002",
+//     internshipStipend: "N/A",
+//     companyCtc: "2800000",
+//     minCgpa: "7.5",
+//     maxBacklogs: "1",
+//     branches: "CSE, ECE",
+//     gender: "No restriction",
+//     applyBy: "2025-06-01 12:00:00",
+//   },
+//   {
+//     id: "4",
+//     company: "Google",
+//     role: "Software Engineer",
+//     salary: "45000/Month",
+//     location: "Remote",
+//     schedule: "Full Time",
+//     type: "Intern+FTE",
+//     details: "Google is hiring Software Engineers for Remote Full-time role.",
+//     logo: "https://play-lh.googleusercontent.com/19I7zjhAAAud9AztLiIxD1MYVdHusoeaW2-7Fx2FUJvcVZBbUBcGKjBBVPsHkFBLWMs=s256-rw",
+//     jobId: "10003",
+//     internshipStipend: "45000",
+//     companyCtc: "3000000",
+//     minCgpa: "8.5",
+//     maxBacklogs: "0",
+//     branches: "CSE, ECE, IT",
+//     gender: "No restriction",
+//     applyBy: "2025-07-15 10:00:00",
+//   },
+// ];
 
-const JobCard = ({ job, onInfoPress, onApplyPress}) => {
+const JobCard = ({ job, onInfoPress, onApplyPress }) => {
   return (
     <View style={styles.card}>
       <View style={styles.header}>
         <View style={styles.companyInfo}>
           <Image source={{ uri: job.logo }} style={styles.logo} />
-          <Text style={styles.company}>{job.company}</Text>
+          <Text style={styles.company}>{job.name}</Text>
         </View>
         <TouchableOpacity onPress={onInfoPress}>
           <MaterialIcons name="info-outline" size={24} color="#555" />
@@ -108,15 +109,19 @@ const JobCard = ({ job, onInfoPress, onApplyPress}) => {
       <View style={styles.divider} />
       <View style={styles.infoRow}>
         <FontAwesome name="money" size={20} color="#28a745" />
-        <Text style={styles.infoText}>{job.salary}</Text>
+        <Text style={styles.infoText}>{job.ctc}</Text>
       </View>
       <View style={styles.infoRow}>
         <MaterialIcons name="location-on" size={20} color="#007bff" />
-        <Text style={styles.infoText}>{job.location}</Text>
+        <Text style={styles.infoText}>
+          {job.location.length > 0
+            ? job.location.map((loc) => loc + ", ")
+            : "Remote"}
+        </Text>
       </View>
       <View style={styles.infoRow}>
         <MaterialIcons name="schedule" size={20} color="#ffb100" />
-        <Text style={styles.infoText}>{job.schedule}</Text>
+        <Text style={styles.infoText}>{job.mode}</Text>
       </View>
       <View style={styles.bottomRow}>
         <TouchableOpacity style={styles.typeButton}>
@@ -136,6 +141,31 @@ const JobListingScreen = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedJob, setSelectedJob] = useState(null);
   const [applyModalVisible, setApplyModalVisible] = useState(false);
+  const [allCompanies, setAllCompanies] = useState([]);
+  const [jobData, setJobData] = useState([]);
+
+  useEffect(() => {
+    // eslint-disable-next-line
+    const data = (async () => {
+      const response = await fetch("http://10.0.2.2:4000/api/opening/getall");
+      const data = await response.json();
+      setAllCompanies(data.data);
+      let ongoingOpen = data.data.filter((item) => {
+        return item.progress === "Ongoing";
+      });
+      setJobData(ongoingOpen);
+    })();
+  }, []);
+
+  const handleCompTime = (time) => {
+    const d1 = new Date(time);
+    const d2 = new Date();
+    if (d1 < d2) {
+      return true;
+    } else {
+      return false;
+    }
+  };
 
   const handleInfoPress = (job) => {
     setSelectedJob(job);
@@ -143,6 +173,10 @@ const JobListingScreen = () => {
   };
 
   const handleApplyPress = (job) => {
+    if (handleCompTime(job.applyby)) {
+      Alert.alert("Application Closed");
+      return;
+    }
     setSelectedJob(job);
     setApplyModalVisible(true); // Show the apply modal
   };
@@ -174,6 +208,7 @@ const JobListingScreen = () => {
         applyModalVisible={applyModalVisible}
         setApplyModalVisible={setApplyModalVisible}
         selectedJob={selectedJob}
+        allCompanies={allCompanies}
       />
     </View>
   );
