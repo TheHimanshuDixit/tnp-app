@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigation } from "expo-router";
 import {
   View,
@@ -9,6 +9,7 @@ import {
   Alert,
 } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -17,9 +18,39 @@ const Login = () => {
 
   const navigator = useNavigation();
 
+  const storeData = async (key, value) => {
+    try {
+      await AsyncStorage.setItem(key, value);
+    } catch (error) {
+      console.error("Error saving data", error);
+    }
+  };
+
+  const getData = async (key) => {
+    try {
+      const value = await AsyncStorage.getItem(key);
+      if (value !== null) {
+        // Data found
+        return value;
+      }
+    } catch (error) {
+      console.error("Error retrieving data", error);
+    }
+  };
+
+  useEffect(() => {
+    const checkToken = async () => {
+      const token = await getData("authToken");
+      if (token) {
+        navigator.navigate("(drawer)");
+      }
+    };
+    checkToken();
+  }, []);
+
   const handleLogin = async (e) => {
     // e.preventDefault();
-    // console.log(email, password);
+    console.log(email, password);
     const response = await fetch("http://10.0.2.2:4000/api/auth/login", {
       method: "POST",
       headers: {
@@ -29,6 +60,7 @@ const Login = () => {
     });
     const data = await response.json();
     if (data.message === "success") {
+      storeData("authToken", data.authToken);
       Alert.alert("Login successful");
       navigator.navigate("(drawer)");
     } else {

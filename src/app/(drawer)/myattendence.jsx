@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import { Table, Row } from "react-native-table-component";
 import { LogBox } from "react-native";
-
+import AsyncStorage from "@react-native-async-storage/async-storage";
 LogBox.ignoreLogs(["Invalid prop textStyle of type array supplied to Cell"]);
 
 const PlacementAttendance = () => {
@@ -18,43 +18,61 @@ const PlacementAttendance = () => {
   const [selectedCompany, setSelectedCompany] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
 
+  const getData = async (key) => {
+    try {
+      const value = await AsyncStorage.getItem(key);
+      if (value !== null) {
+        // Data found
+        return value;
+      }
+    } catch (error) {
+      console.error("Error retrieving data", error);
+    }
+  };
+
+  const fetchData = async () => {
+    const token = await getData("authToken");
+    if (token) {
+      fetch("http://10.0.2.2:4000/api/student", {
+        method: "GET",
+        headers: {
+          "auth-token": token, // Replace with your actual token
+        },
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          const fetchedCompanies = data.data.map((item, index) => ({
+            id: (index + 1).toString(), // Convert index to string for ID
+            name: item.company.name,
+          }));
+
+          const fetchedAttendanceData = data.data.reduce((acc, item) => {
+            const companyName = item.company.name;
+            acc[companyName] = item.event.map((e) => ({
+              event: e.event,
+              date: new Date(e.date).toLocaleDateString("en-GB"), // Format date as DD/MM/YYYY
+              status: "Present", // Default status
+            }));
+            return acc;
+          }, {});
+
+          // Handle companies with no events
+          fetchedCompanies.forEach((company) => {
+            if (!fetchedAttendanceData[company.name]) {
+              fetchedAttendanceData[company.name] = []; // Add empty array if no events
+            }
+          });
+
+          setCompanies(fetchedCompanies);
+          setAttendanceData(fetchedAttendanceData);
+        })
+        .catch((error) => console.error(error));
+    }
+  };
+
   useEffect(() => {
     // Fetch attendance data from API
-    fetch("http://10.0.2.2:4000/api/student", {
-      method: "GET",
-      headers: {
-        "auth-token":
-          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2MjQxM2E4NGRkMzY1MTc0NGY5ZDI2MyIsImlhdCI6MTcyOTExMjk5OCwiZXhwIjoxNzI5MTk5Mzk4fQ.8VZhYaCOCTBtwOUWIjHnMkAGOpxz1_hye-4pEUq_l64", // Replace with your actual token
-      },
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        const fetchedCompanies = data.data.map((item, index) => ({
-          id: (index + 1).toString(), // Convert index to string for ID
-          name: item.company.name,
-        }));
-
-        const fetchedAttendanceData = data.data.reduce((acc, item) => {
-          const companyName = item.company.name;
-          acc[companyName] = item.event.map((e) => ({
-            event: e.event,
-            date: new Date(e.date).toLocaleDateString("en-GB"), // Format date as DD/MM/YYYY
-            status: "Present", // Default status
-          }));
-          return acc;
-        }, {});
-
-        // Handle companies with no events
-        fetchedCompanies.forEach((company) => {
-          if (!fetchedAttendanceData[company.name]) {
-            fetchedAttendanceData[company.name] = []; // Add empty array if no events
-          }
-        });
-
-        setCompanies(fetchedCompanies);
-        setAttendanceData(fetchedAttendanceData);
-      })
-      .catch((error) => console.error(error));
+    fetchData();
   }, []);
 
   const openAttendanceModal = (company) => {

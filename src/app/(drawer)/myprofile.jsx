@@ -7,10 +7,14 @@ import {
   Image,
   TouchableOpacity,
   Alert,
+  Modal,
+  StyleSheet,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import * as DocumentPicker from "expo-document-picker";
 import { ScrollView } from "react-native-gesture-handler";
+import { WebView } from "react-native-webview";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const MyProfile = () => {
   const [profile, setProfile] = useState({
@@ -29,39 +33,55 @@ const MyProfile = () => {
   const [fname, setFname] = useState("");
   const [lname, setLname] = useState("");
   const [resume, setResume] = useState(null);
+  const [getResume, setGetResume] = useState(null);
   const [profilePhoto, setProfilePhoto] = useState(null);
+  const [getProfile, setGetProfile] = useState(null);
+  const [resumeModalVisible, setResumeModalVisible] = useState(false);
+  const getData = async (key) => {
+    try {
+      const value = await AsyncStorage.getItem(key);
+      if (value !== null) {
+        // Data found
+        return value;
+      }
+    } catch (error) {
+      console.error("Error retrieving data", error);
+    }
+  };
 
   useEffect(() => {
     const fetchProfile = async () => {
-      try {
-        const res = await fetch("http://10.0.2.2:4000/api/auth/profile", {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            "auth-token":
-              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2MjQxM2E4NGRkMzY1MTc0NGY5ZDI2MyIsImlhdCI6MTcyOTExMjk5OCwiZXhwIjoxNzI5MTk5Mzk4fQ.8VZhYaCOCTBtwOUWIjHnMkAGOpxz1_hye-4pEUq_l64",
-          },
-        });
+      const token = await getData("authToken");
+      if (token) {
+        try {
+          const res = await fetch("http://10.0.2.2:4000/api/auth/profile", {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              "auth-token": token,
+            },
+          });
 
-        const data = await res.json();
-        setProfile({
-          enroll: data.enrollnment,
-          coverletter: data.coverletter,
-          email: data.email,
-          college: data.college,
-          phone: data.phoneno,
-          branch: data.branch,
-          gender: data.gender,
-          year: data.year,
-          cgpa: data.cgpa,
-          backlogs: data.backlogs,
-        });
-        setResume(data.resume);
-        setFname(data.name.split(" ")[0]);
-        setLname(data.name.split(" ")[1]);
-        setProfilePhoto(data.image); // Load profile image from the backend
-      } catch (error) {
-        console.log(error);
+          const data = await res.json();
+          setProfile({
+            enroll: data.enrollnment,
+            coverletter: data.coverletter,
+            email: data.email,
+            college: data.college,
+            phone: data.phoneno,
+            branch: data.branch,
+            gender: data.gender,
+            year: data.year,
+            cgpa: data.cgpa,
+            backlogs: data.backlogs,
+          });
+          setGetResume(data.resume);
+          setFname(data.name.split(" ")[0]);
+          setLname(data.name.split(" ")[1]);
+          setGetProfile(data.image);
+        } catch (error) {
+          console.log(error);
+        }
       }
     };
 
@@ -82,8 +102,11 @@ const MyProfile = () => {
       quality: 1,
     });
 
+    // console.log(result);
+
     if (!result.canceled) {
-      setProfilePhoto(result.assets[0].uri);
+      setProfilePhoto(result);
+      setGetProfile(result.assets[0].uri);
     }
   };
 
@@ -93,7 +116,9 @@ const MyProfile = () => {
       copyToCacheDirectory: true,
     });
 
-    if (result.type === "success") {
+    // console.log(result);
+
+    if (!result.canceled) {
       setResume(result);
     } else {
       Alert.alert("Resume selection was canceled.");
@@ -107,6 +132,7 @@ const MyProfile = () => {
   };
 
   const handleSave = async () => {
+    // console.log(resume, profilePhoto);
     try {
       const formData = new FormData();
       formData.append("name", `${fname} ${lname}`);
@@ -122,38 +148,43 @@ const MyProfile = () => {
       formData.append("gender", profile.gender);
       if (resume) {
         formData.append("resume", {
-          uri: resume.uri,
-          type: "application/pdf",
-          name: resume.name,
+          uri: resume.assets[0].uri,
+          type: resume.assets[0].mimeType,
+          name: resume.assets[0].name,
         });
       }
       if (profilePhoto) {
-        formData.append("profilePhoto", {
-          uri: profilePhoto,
-          type: "image/jpeg",
-          name: "profile.jpg",
+        formData.append("image", {
+          uri: profilePhoto.assets[0].uri,
+          type: profilePhoto.assets[0].mimeType,
+          name: profilePhoto.assets[0].fileName,
         });
       }
 
       const res = await fetch("http://10.0.2.2:4000/api/auth/profile", {
-        method: "PUT",
+        method: "POST",
         headers: {
           "Content-Type": "multipart/form-data",
-          "auth-token":
-            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2MjQxM2E4NGRkMzY1MTc0NGY5ZDI2MyIsImlhdCI6MTcyOTExMjk5OCwiZXhwIjoxNzI5MTk5Mzk4fQ.8VZhYaCOCTBtwOUWIjHnMkAGOpxz1_hye-4pEUq_l64",
+          // "auth-token": storage.getString("authToken"),
         },
         body: formData,
       });
 
       const data = await res.json();
-      if (res.ok) {
+      if (data.message === "success") {
+        setGetResume(data.data.resume);
+        setGetProfile(data.data.image);
         Alert.alert("Profile updated successfully");
       } else {
         Alert.alert("Failed to update profile", data.message);
+        setProfilePhoto(null);
+        setResume(null);
       }
     } catch (error) {
       console.log(error);
       Alert.alert("An error occurred while updating the profile.");
+      setProfilePhoto(null);
+      setResume(null);
     }
   };
 
@@ -169,8 +200,8 @@ const MyProfile = () => {
           <TouchableOpacity onPress={handleImagePicker}>
             <Image
               source={
-                profilePhoto
-                  ? { uri: profilePhoto }
+                getProfile
+                  ? { uri: getProfile }
                   : {
                       uri: "https://th.bing.com/th/id/OIP.PoS7waY4-VeqgNuBSxVUogAAAA?rs=1&pid=ImgDetMain",
                     }
@@ -345,13 +376,46 @@ const MyProfile = () => {
         {/* Resume Upload Section */}
         <View style={{ marginBottom: 20 }}>
           <Button title="Upload Resume" onPress={handleResumePicker} />
-          {resume && <Text>Resume uploaded: {resume.name}</Text>}
+          {getResume && (
+            <TouchableOpacity onPress={() => setResumeModalVisible(true)}>
+              <Text style={{ color: "blue", textDecorationLine: "underline" }}>
+                View uploaded resume
+              </Text>
+            </TouchableOpacity>
+          )}
         </View>
+        <Modal
+          visible={resumeModalVisible}
+          animationType="slide"
+          transparent={false}
+          onRequestClose={() => setResumeModalVisible(false)}>
+          <View style={styles.modalContainer}>
+            <Button
+              title="Close"
+              onPress={() => setResumeModalVisible(false)}
+            />
+            {getResume && (
+              <WebView
+                source={{ uri: getResume }}
+                style={{ flex: 1 }}
+                javaScriptEnabled={true}
+              />
+            )}
+          </View>
+        </Modal>
 
         <Button title="Save" onPress={handleSave} />
       </View>
     </ScrollView>
   );
 };
+
+const styles = StyleSheet.create({
+  modalContainer: {
+    flex: 1,
+    padding: 10,
+    backgroundColor: "white",
+  },
+});
 
 export default MyProfile;

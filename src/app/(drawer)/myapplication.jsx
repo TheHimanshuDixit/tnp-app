@@ -8,6 +8,7 @@ import {
   StyleSheet,
 } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Myapplications = () => {
   const [applications, setApplications] = useState([]);
@@ -24,40 +25,53 @@ const Myapplications = () => {
     }
   };
 
+  const getData = async (key) => {
+    try {
+      const value = await AsyncStorage.getItem(key);
+      if (value !== null) {
+        // Data found
+        return value;
+      }
+    } catch (error) {
+      console.error("Error retrieving data", error);
+    }
+  };
+
   // Fetch applications and company data
   useEffect(() => {
     const fetchData = async () => {
-      try {
-        // Fetch applications
-        const applicationResponse = await fetch(
-          "http://10.0.2.2:4000/api/application/get",
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              "auth-token":
-                "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2MjQxM2E4NGRkMzY1MTc0NGY5ZDI2MyIsImlhdCI6MTcyOTExMjk5OCwiZXhwIjoxNzI5MTk5Mzk4fQ.8VZhYaCOCTBtwOUWIjHnMkAGOpxz1_hye-4pEUq_l64",
-            },
-          }
-        );
-        const applicationData = await applicationResponse.json();
-        setApplications(applicationData.data);
+      const token = await getData("authToken");
+      if (token) {
+        try {
+          // Fetch applications
+          const applicationResponse = await fetch(
+            "http://10.0.2.2:4000/api/application/get",
+            {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+                "auth-token": token,
+              },
+            }
+          );
+          const applicationData = await applicationResponse.json();
+          setApplications(applicationData.data);
 
-        // Fetch company details (openings)
-        const companyResponse = await fetch(
-          "http://10.0.2.2:4000/api/opening/getall"
-        );
-        const companyData = await companyResponse.json();
-        const companyMap = {};
-        companyData.data.forEach((opening) => {
-          companyMap[opening._id] = opening;
-        });
-        setCompany(companyMap);
-      } catch (error) {
-        console.log(error);
+          // Fetch company details (openings)
+          const companyResponse = await fetch(
+            "http://10.0.2.2:4000/api/opening/getall"
+          );
+          const companyData = await companyResponse.json();
+          const companyMap = {};
+          companyData.data.forEach((opening) => {
+            companyMap[opening._id] = opening;
+          });
+          setCompany(companyMap);
+        } catch (error) {
+          console.log(error);
+        }
       }
     };
-
     fetchData();
   }, []);
 
@@ -104,22 +118,26 @@ const Myapplications = () => {
               <Text style={styles.modalLabel}>Name:</Text> {viewCompany.name}
             </Text>
             <Text style={styles.modalItem}>
-              <Text style={styles.modalLabel}>Job Title:</Text> {viewCompany.jobId}
+              <Text style={styles.modalLabel}>Job Title:</Text>{" "}
+              {viewCompany.jobId}
             </Text>
             <Text style={styles.modalItem}>
               <Text style={styles.modalLabel}>Role:</Text> {viewCompany.role}
             </Text>
             <Text style={styles.modalItem}>
-              <Text style={styles.modalLabel}>Stipend:</Text> {viewCompany.stipend}
+              <Text style={styles.modalLabel}>Stipend:</Text>{" "}
+              {viewCompany.stipend}
             </Text>
             <Text style={styles.modalItem}>
               <Text style={styles.modalLabel}>CTC:</Text> {viewCompany.ctc}
             </Text>
             <Text style={styles.modalItem}>
-              <Text style={styles.modalLabel}>Min CGPA:</Text> {viewCompany.cgpacritera}
+              <Text style={styles.modalLabel}>Min CGPA:</Text>{" "}
+              {viewCompany.cgpacritera}
             </Text>
             <Text style={styles.modalItem}>
-              <Text style={styles.modalLabel}>Backlogs:</Text> {viewCompany.backlog}
+              <Text style={styles.modalLabel}>Backlogs:</Text>{" "}
+              {viewCompany.backlog}
             </Text>
             <Text style={styles.modalItem}>
               <Text style={styles.modalLabel}>Branches:</Text>{" "}
@@ -134,13 +152,15 @@ const Myapplications = () => {
                 : "N/A"}
             </Text>
             <Text style={styles.modalItem}>
-              <Text style={styles.modalLabel}>Gender:</Text> {viewCompany.gender}
+              <Text style={styles.modalLabel}>Gender:</Text>{" "}
+              {viewCompany.gender}
             </Text>
             <Text style={styles.modalItem}>
               <Text style={styles.modalLabel}>Mode:</Text> {viewCompany.mode}
             </Text>
             <Text style={styles.modalItem}>
-              <Text style={styles.modalLabel}>Duration:</Text> {viewCompany.duration}
+              <Text style={styles.modalLabel}>Duration:</Text>{" "}
+              {viewCompany.duration}
             </Text>
             <Text style={styles.modalItem}>
               <Text style={styles.modalLabel}>Application Date:</Text>{" "}
@@ -198,7 +218,7 @@ const styles = StyleSheet.create({
   companyName: {
     fontSize: 15,
     flex: 1,
-    marginRight:5
+    marginRight: 5,
   },
   jobTitle: {
     fontSize: 14,

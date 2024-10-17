@@ -7,9 +7,12 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
+  Button,
   Alert,
 } from "react-native";
 import * as DocumentPicker from "expo-document-picker";
+import { WebView } from "react-native-webview";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const ApplyJobModal = ({
   applyModalVisible,
@@ -25,11 +28,24 @@ const ApplyJobModal = ({
     branch: "",
     cgpa: "",
     gender: "",
-    resume: null,
   });
   const [placed, setPlaced] = useState(false);
   const [studentPackage, setStudentPackage] = useState("0");
-  const [getResume, setGetResume] = useState("");
+  const [resume, setResume] = useState(null);
+  const [getResume, setGetResume] = useState(null);
+  const [resumeModalVisible, setResumeModalVisible] = useState(false);
+
+  const getData = async (key) => {
+    try {
+      const value = await AsyncStorage.getItem(key);
+      if (value !== null) {
+        // Data found
+        return value;
+      }
+    } catch (error) {
+      console.error("Error retrieving data", error);
+    }
+  };
 
   const handleInputChange = (field, value) => {
     setForm({ ...form, [field]: value });
@@ -37,95 +53,101 @@ const ApplyJobModal = ({
 
   const pickDocument = async () => {
     let result = await DocumentPicker.getDocumentAsync({});
-    if (result.type === "success") {
-      setForm({ ...form, resume: result });
+    if (!result.canceled) {
+      setResume(result);
     }
   };
 
-  const handleSubmit = async() => {
+  const handleSubmit = async () => {
     // handle form submission logic here
-    if (
-      form.cgpa >= selectedJob.cgpacritera &&
-      (placed === false ||
-        (placed === true &&
-          parseInt(studentPackage) >= 1.8 * parseInt(selectedJob.ctc)))
-    ) {
-      const formData = new FormData();
-      formData.append("name", form.name);
-      formData.append("email", form.email);
-      if (form.resume) {
-        formData.append("resume", form.resume);
-      } else {
-        formData.append("resume", getResume);
-      }
-      formData.append("enroll", form.enrollment);
-      formData.append("gender", form.gender);
-      formData.append("phone", form.phone);
-      formData.append("branch", form.branch);
-      const response = await fetch(
-        `http://10.0.2.2:4000/api/application/add/${cid}`,
-        {
-          method: "POST",
-          headers: {
-            "auth-token":
-              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2MjQxM2E4NGRkMzY1MTc0NGY5ZDI2MyIsImlhdCI6MTcyOTExMjk5OCwiZXhwIjoxNzI5MTk5Mzk4fQ.8VZhYaCOCTBtwOUWIjHnMkAGOpxz1_hye-4pEUq_l64",
-          },
-          body: formData,
+    const token = await getData("authToken");
+    if (token) {
+      if (
+        form.cgpa >= selectedJob.cgpacritera &&
+        (placed === false ||
+          (placed === true &&
+            parseInt(studentPackage) >= 1.8 * parseInt(selectedJob.ctc)))
+      ) {
+        const formData = new FormData();
+        formData.append("name", form.name);
+        formData.append("email", form.email);
+        if (resume) {
+          formData.append("resume", {
+            uri: resume.assets[0].uri,
+            type: resume.assets[0].mimeType,
+            name: resume.assets[0].name,
+          });
+        } else {
+          formData.append("resume", getResume);
         }
-      );
-      const data = await response.json();
-      if (data.message === "success") {
-        Alert.alert("Applied Successfully");
+        formData.append("enroll", form.enrollment);
+        formData.append("gender", form.gender);
+        formData.append("phone", form.phone);
+        formData.append("branch", form.branch);
+        const response = await fetch(
+          `http://10.0.2.2:4000/api/application/add/${cid}`,
+          {
+            method: "POST",
+            headers: {
+              "auth-token": token,
+            },
+            body: formData,
+          }
+        );
+        const data = await response.json();
+        if (data.message === "success") {
+          Alert.alert("Applied Successfully");
+        } else {
+          Alert.alert("Already Applied");
+        }
       } else {
-        Alert.alert("Already Applied");
+        Alert.alert("You are not eligible for this job");
       }
-    } else {
-      Alert.alert("You are not eligible for this job");
     }
     setApplyModalVisible(false);
   };
 
   useEffect(() => {
     const fetchProfile = async () => {
-      try {
-        const res = await fetch("http://10.0.2.2:4000/api/auth/profile", {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            "auth-token":
-              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2MjQxM2E4NGRkMzY1MTc0NGY5ZDI2MyIsImlhdCI6MTcyOTExMjk5OCwiZXhwIjoxNzI5MTk5Mzk4fQ.8VZhYaCOCTBtwOUWIjHnMkAGOpxz1_hye-4pEUq_l64",
-          },
-        });
+      const token = await getData("authToken");
+      if (token) {
+        try {
+          const res = await fetch("http://10.0.2.2:4000/api/auth/profile", {
+            method: "GET",
+            headers: {
+              "Content-Type": "multipart/form-data",
+              "auth-token": token,
+            },
+          });
 
-        const data = await res.json();
-        setForm({
-          name: data.name,
-          email: data.email,
-          enrollment: data.enrollnment,
-          phone: data.phoneno,
-          branch: data.branch,
-          cgpa: data.cgpa,
-          gender: data.gender,
-          // resume: data.resume,
-        });
-        setPlaced(data.placed);
-        for (let i = 0; i < allCompanies.length; i++) {
-          if (
-            data.companys.includes(allCompanies[i]._id) &&
-            allCompanies[i].ctc > comp
-          ) {
-            setStudentPackage(allCompanies[i].ctc);
+          const data = await res.json();
+          setForm({
+            name: data.name,
+            email: data.email,
+            enrollment: data.enrollnment,
+            phone: data.phoneno,
+            branch: data.branch,
+            cgpa: data.cgpa,
+            gender: data.gender,
+          });
+          setPlaced(data.placed);
+          setGetResume(data.resume);
+          for (let i = 0; i < allCompanies.length; i++) {
+            if (
+              data.companys.includes(allCompanies[i]._id) &&
+              allCompanies[i].ctc > comp
+            ) {
+              setStudentPackage(allCompanies[i].ctc);
+            }
           }
+        } catch (error) {
+          console.log(error);
         }
-      } catch (error) {
-        console.log(error);
       }
     };
 
     fetchProfile();
   }, []);
-
-  
 
   return (
     <Modal
@@ -188,9 +210,41 @@ const ApplyJobModal = ({
               style={styles.fileUploadButton}
               onPress={pickDocument}>
               <Text style={styles.fileUploadText}>
-                {form.resume ? form.resume.name : "Choose File"}
+                {getResume ? (
+                  <TouchableOpacity onPress={() => setResumeModalVisible(true)}>
+                    <Text
+                      style={{
+                        color: "blue",
+                        textDecorationLine: "underline",
+                      }}>
+                      View Resume
+                    </Text>
+                  </TouchableOpacity>
+                ) : (
+                  "Choose File"
+                )}
               </Text>
             </TouchableOpacity>
+
+            <Modal
+              visible={resumeModalVisible}
+              animationType="slide"
+              transparent={false}
+              onRequestClose={() => setResumeModalVisible(false)}>
+              <View style={styles.modalContainer}>
+                <Button
+                  title="Close"
+                  onPress={() => setResumeModalVisible(false)}
+                />
+                {resume && (
+                  <WebView
+                    source={{ uri: getResume }}
+                    style={{ flex: 1 }}
+                    javaScriptEnabled={true}
+                  />
+                )}
+              </View>
+            </Modal>
 
             <View style={styles.buttonContainer}>
               <TouchableOpacity style={styles.buttonClose}>
@@ -220,6 +274,11 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  modalContainer: {
+    flex: 1,
+    padding: 10,
+    backgroundColor: "white",
   },
   modalView: {
     width: "90%",

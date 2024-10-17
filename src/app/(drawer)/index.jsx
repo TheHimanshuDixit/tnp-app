@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   View,
   Text,
@@ -10,10 +10,8 @@ import {
 import Carsoul from "../../components/crousal";
 import NoticeMarquee from "../../components/toprotater";
 import TestimonialCarousel from "../../components/testimonial";
-import { useNavigation } from "expo-router";
 
 export default function Index() {
-  const navigate = useNavigation();
 
   const topRecruiters = [
     {
@@ -54,10 +52,7 @@ export default function Index() {
           </Text>
           <Button
             color="green"
-            title="Apply"
-            onPress={() => {
-              navigate.navigate("opening");
-            }}
+            title="Explore"
           />
         </View>
         <View style={styles.recruitersSection}>
@@ -68,8 +63,8 @@ export default function Index() {
                 key={index}
                 source={
                   typeof recruiter.logo === "string"
-                    ? { uri: recruiter.logo } // For URLs
-                    : recruiter.logo // For local images using require()
+                    ? { uri: recruiter.logo }
+                    : recruiter.logo
                 }
                 style={styles.recruiterLogo}
                 onError={(e) =>
@@ -80,6 +75,7 @@ export default function Index() {
           </View>
         </View>
       </View>
+      <Text style={styles.recruitersTitle}>Brightest Students</Text>
       <TestimonialCarousel />
     </ScrollView>
   );
@@ -110,6 +106,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     textAlign: "center",
     marginBottom: 20,
+    textDecorationLine: "underline",
   },
   recruitersGrid: {
     flexDirection: "row",
@@ -117,8 +114,8 @@ const styles = StyleSheet.create({
     justifyContent: "space-around",
   },
   recruiterLogo: {
-    width: 100,
-    height: 50,
+    width: 40,
+    height: 40,
     marginBottom: 20,
   },
 });

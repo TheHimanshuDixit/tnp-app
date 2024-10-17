@@ -186,7 +186,7 @@ const JobListingScreen = () => {
       <FlatList
         showsVerticalScrollIndicator={false}
         data={jobData}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item._id}
         renderItem={({ item }) => (
           <JobCard
             job={item}

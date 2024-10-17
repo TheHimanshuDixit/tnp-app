@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Drawer } from "expo-router/drawer";
 import Ionicons from "react-native-vector-icons/Ionicons";
@@ -9,11 +9,63 @@ import {
 } from "@react-navigation/drawer";
 import logo from "../../assets/images/logo.png";
 import { useRouter } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function Layout() {
+  const [profilePic, setProfilePic] = useState("");
+  const [profileEmail, setProfileEmail] = useState("");
+  const [profileName, setProfileName] = useState("");
+
+  const getData = async (key) => {
+    try {
+      const value = await AsyncStorage.getItem(key);
+      if (value !== null) {
+        // Data found
+        return value;
+      }
+    } catch (error) {
+      console.error("Error retrieving data", error);
+    }
+  };
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      const token = await getData("authToken");
+      if (token) {
+        try {
+          const res = await fetch("http://10.0.2.2:4000/api/auth/profile", {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              "auth-token": token,
+            },
+          });
+
+          const data = await res.json();
+          if (data) {
+            setProfilePic(data.image);
+            setProfileEmail(data.email);
+            setProfileName(data.name);
+          }
+        } catch (error) {
+          console.log(error);
+        }
+      }
+    };
+
+    fetchProfile();
+  }, []);
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <Drawer drawerContent={(props) => <CustomDrawerContent {...props} />}>
+      <Drawer
+        drawerContent={(props) => (
+          <CustomDrawerContent
+            {...props}
+            profilePic={profilePic}
+            profileEmail={profileEmail}
+            profileName={profileName}
+          />
+        )}>
         <Drawer.Screen
           name="index"
           options={{
@@ -108,15 +160,17 @@ function CustomDrawerContent(props) {
       contentContainerStyle={{ flex: 1, backgroundColor: "#f8f9fa" }}>
       <View style={{ flexDirection: "row", alignItems: "center", padding: 20 }}>
         <Image
-          source={logo}
-          style={{ width: 50, height: 50, marginRight: 10 }} // Circular image
+          source={props.profilePic ? { uri: props.profilePic } : logo}
+          style={{ width: 50, height: 50, marginRight: 5, marginLeft: -8, borderRadius:50 }} // Circular image
           resizeMode={"contain"}
         />
         <View>
           <Text style={{ fontSize: 18, fontWeight: "bold", color: "#333" }}>
-            User Name
+            {props.profileName || "User Name"}
           </Text>
-          <Text style={{ color: "#666" }}>user@example.com</Text>
+          <Text style={{ color: "#666" }}>
+            {props.profileEmail || "user@example.com"}
+          </Text>
         </View>
       </View>
 
@@ -132,6 +186,7 @@ function CustomDrawerContent(props) {
             alignItems: "center",
           }}
           onPress={() => {
+            AsyncStorage.clear();
             router.push("/login");
           }}>
           <Text style={{ color: "white", fontSize: 16 }}>Logout</Text>
