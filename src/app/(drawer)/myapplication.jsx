@@ -45,7 +45,7 @@ const Myapplications = () => {
         try {
           // Fetch applications
           const applicationResponse = await fetch(
-            "http://10.0.2.2:4000/api/application/get",
+            "http://192.168.29.206:4000/api/application/get",
             {
               method: "GET",
               headers: {
@@ -59,7 +59,7 @@ const Myapplications = () => {
 
           // Fetch company details (openings)
           const companyResponse = await fetch(
-            "http://10.0.2.2:4000/api/opening/getall"
+            "http://192.168.29.206:4000/api/opening/getall"
           );
           const companyData = await companyResponse.json();
           const companyMap = {};

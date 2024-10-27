@@ -24,7 +24,7 @@ const ForgotPasswordScreen = () => {
   const handleSendResetLink = async (e) => {
     // Here you can add the logic to send the reset link (e.g., API call)
     e.preventDefault();
-    const data = await fetch("http://10.0.2.2:4000/api/auth/forgot", {
+    const data = await fetch("http://192.168.29.206:4000/api/auth/forgot", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -61,13 +61,16 @@ const ForgotPasswordScreen = () => {
       Alert.alert("Error", "Invalid OTP!");
       return;
     }
-    const data = await fetch("http://10.0.2.2:4000/api/auth/updatepassword", {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ email, newPassword }),
-    });
+    const data = await fetch(
+      "http://192.168.29.206:4000/api/auth/updatepassword",
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, newPassword }),
+      }
+    );
     const response = await data.json();
     if (response.message === "success") {
       Alert.alert("Success", "Your password has been changed!");

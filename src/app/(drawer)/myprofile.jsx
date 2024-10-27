@@ -54,13 +54,16 @@ const MyProfile = () => {
       const token = await getData("authToken");
       if (token) {
         try {
-          const res = await fetch("http://10.0.2.2:4000/api/auth/profile", {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              "auth-token": token,
-            },
-          });
+          const res = await fetch(
+            "http://192.168.29.206:4000/api/auth/profile",
+            {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+                "auth-token": token,
+              },
+            }
+          );
 
           const data = await res.json();
           setProfile({
@@ -133,58 +136,62 @@ const MyProfile = () => {
 
   const handleSave = async () => {
     // console.log(resume, profilePhoto);
-    try {
-      const formData = new FormData();
-      formData.append("name", `${fname} ${lname}`);
-      formData.append("email", profile.email);
-      formData.append("enroll", profile.enroll);
-      formData.append("coverletter", profile.coverletter);
-      formData.append("college", profile.college);
-      formData.append("phone", profile.phone);
-      formData.append("branch", profile.branch);
-      formData.append("year", profile.year);
-      formData.append("cgpa", profile.cgpa);
-      formData.append("backlogs", profile.backlogs);
-      formData.append("gender", profile.gender);
-      if (resume) {
-        formData.append("resume", {
-          uri: resume.assets[0].uri,
-          type: resume.assets[0].mimeType,
-          name: resume.assets[0].name,
-        });
-      }
-      if (profilePhoto) {
-        formData.append("image", {
-          uri: profilePhoto.assets[0].uri,
-          type: profilePhoto.assets[0].mimeType,
-          name: profilePhoto.assets[0].fileName,
-        });
-      }
+    const token = await getData("authToken");
+    if (token) {
+      try {
+        const formData = new FormData();
+        formData.append("name", `${fname} ${lname}`);
+        formData.append("email", profile.email);
+        formData.append("enroll", profile.enroll);
+        formData.append("coverletter", profile.coverletter);
+        formData.append("college", profile.college);
+        formData.append("phone", profile.phone);
+        formData.append("branch", profile.branch);
+        formData.append("year", profile.year);
+        formData.append("cgpa", profile.cgpa);
+        formData.append("backlogs", profile.backlogs);
+        formData.append("gender", profile.gender);
+        if (resume) {
+          formData.append("resume", {
+            uri: resume.assets[0].uri,
+            type: resume.assets[0].mimeType,
+            name: resume.assets[0].name,
+          });
+        }
+        if (profilePhoto) {
+          formData.append("image", {
+            uri: profilePhoto.assets[0].uri,
+            type: profilePhoto.assets[0].mimeType,
+            name: profilePhoto.assets[0].fileName,
+          });
+        }
 
-      const res = await fetch("http://10.0.2.2:4000/api/auth/profile", {
-        method: "POST",
-        headers: {
-          "Content-Type": "multipart/form-data",
-          // "auth-token": storage.getString("authToken"),
-        },
-        body: formData,
-      });
+        const res = await fetch("http://192.168.29.206:4000/api/auth/profile", {
+          method: "POST",
+          headers: {
+            "auth-token": token,
+          },
+          body: formData,
+        });
 
-      const data = await res.json();
-      if (data.message === "success") {
-        setGetResume(data.data.resume);
-        setGetProfile(data.data.image);
-        Alert.alert("Profile updated successfully");
-      } else {
-        Alert.alert("Failed to update profile", data.message);
+        const data = await res.json();
+        if (data.message === "success") {
+          setGetResume(data.data.resume);
+          setGetProfile(data.data.image);
+          Alert.alert("Profile updated successfully");
+        } else {
+          Alert.alert("Failed to update profile", data.message);
+          setProfilePhoto(null);
+          setResume(null);
+        }
+      } catch (error) {
+        console.log(error);
+        Alert.alert("An error occurred while updating the profile.");
         setProfilePhoto(null);
         setResume(null);
       }
-    } catch (error) {
-      console.log(error);
-      Alert.alert("An error occurred while updating the profile.");
-      setProfilePhoto(null);
-      setResume(null);
+    } else {
+      Alert.alert("Please login to update the profile");
     }
   };
 

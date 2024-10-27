@@ -33,7 +33,7 @@ const PlacementAttendance = () => {
   const fetchData = async () => {
     const token = await getData("authToken");
     if (token) {
-      fetch("http://10.0.2.2:4000/api/student", {
+      fetch("http://192.168.29.206:4000/api/student", {
         method: "GET",
         headers: {
           "auth-token": token, // Replace with your actual token

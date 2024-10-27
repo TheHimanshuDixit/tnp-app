@@ -85,7 +85,7 @@ const ApplyJobModal = ({
         formData.append("phone", form.phone);
         formData.append("branch", form.branch);
         const response = await fetch(
-          `http://10.0.2.2:4000/api/application/add/${cid}`,
+          `http://192.168.29.206:4000/api/application/add/${cid}`,
           {
             method: "POST",
             headers: {
@@ -112,13 +112,15 @@ const ApplyJobModal = ({
       const token = await getData("authToken");
       if (token) {
         try {
-          const res = await fetch("http://10.0.2.2:4000/api/auth/profile", {
-            method: "GET",
-            headers: {
-              "Content-Type": "multipart/form-data",
-              "auth-token": token,
-            },
-          });
+          const res = await fetch(
+            "http://192.168.29.206:4000/api/auth/profile",
+            {
+              method: "GET",
+              headers: {
+                "auth-token": token,
+              },
+            }
+          );
 
           const data = await res.json();
           setForm({
@@ -135,7 +137,7 @@ const ApplyJobModal = ({
           for (let i = 0; i < allCompanies.length; i++) {
             if (
               data.companys.includes(allCompanies[i]._id) &&
-              allCompanies[i].ctc > comp
+              parseInt(allCompanies[i].ctc) > parseInt(studentPackage)
             ) {
               setStudentPackage(allCompanies[i].ctc);
             }
@@ -209,22 +211,21 @@ const ApplyJobModal = ({
             <TouchableOpacity
               style={styles.fileUploadButton}
               onPress={pickDocument}>
-              <Text style={styles.fileUploadText}>
-                {getResume ? (
-                  <TouchableOpacity onPress={() => setResumeModalVisible(true)}>
-                    <Text
-                      style={{
-                        color: "blue",
-                        textDecorationLine: "underline",
-                      }}>
-                      View Resume
-                    </Text>
-                  </TouchableOpacity>
-                ) : (
-                  "Choose File"
-                )}
-              </Text>
+              <Text style={styles.fileUploadText}>Upload New Resume</Text>
             </TouchableOpacity>
+            <Text style={styles.fileUploadText}>
+              {getResume && (
+                <TouchableOpacity onPress={() => setResumeModalVisible(true)}>
+                  <Text
+                    style={{
+                      color: "blue",
+                      textDecorationLine: "underline",
+                    }}>
+                    View Resume
+                  </Text>
+                </TouchableOpacity>
+              )}
+            </Text>
 
             <Modal
               visible={resumeModalVisible}
@@ -236,7 +237,7 @@ const ApplyJobModal = ({
                   title="Close"
                   onPress={() => setResumeModalVisible(false)}
                 />
-                {resume && (
+                {getResume && (
                   <WebView
                     source={{ uri: getResume }}
                     style={{ flex: 1 }}

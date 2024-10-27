@@ -27,7 +27,7 @@ const SignupScreen = () => {
       Alert.alert("Error", "Passwords do not match");
       return;
     }
-    const response = await fetch("http://10.0.2.2:4000/api/auth/signup", {
+    const response = await fetch("http://192.168.29.206:4000/api/auth/signup", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

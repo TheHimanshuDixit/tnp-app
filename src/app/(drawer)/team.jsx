@@ -40,7 +40,7 @@ const Team = () => {
   useEffect(() => {
     //eslint-disable-next-line
     const data = (async () => {
-      const response = await fetch("http://10.0.2.2:4000/api/team/get");
+      const response = await fetch("http://192.168.29.206:4000/api/team/get");
       const data = await response.json();
       setTeams(data.data);
     })();

@@ -33,13 +33,16 @@ export default function Layout() {
       const token = await getData("authToken");
       if (token) {
         try {
-          const res = await fetch("http://10.0.2.2:4000/api/auth/profile", {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              "auth-token": token,
-            },
-          });
+          const res = await fetch(
+            "http://192.168.29.206:4000/api/auth/profile",
+            {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+                "auth-token": token,
+              },
+            }
+          );
 
           const data = await res.json();
           if (data) {
@@ -161,7 +164,13 @@ function CustomDrawerContent(props) {
       <View style={{ flexDirection: "row", alignItems: "center", padding: 20 }}>
         <Image
           source={props.profilePic ? { uri: props.profilePic } : logo}
-          style={{ width: 50, height: 50, marginRight: 5, marginLeft: -8, borderRadius:50 }} // Circular image
+          style={{
+            width: 50,
+            height: 50,
+            marginRight: 5,
+            marginLeft: -8,
+            borderRadius: 50,
+          }} // Circular image
           resizeMode={"contain"}
         />
         <View>

@@ -51,7 +51,7 @@ const Login = () => {
   const handleLogin = async (e) => {
     // e.preventDefault();
     console.log(email, password);
-    const response = await fetch("http://10.0.2.2:4000/api/auth/login", {
+    const response = await fetch("http://192.168.29.206:4000/api/auth/login", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

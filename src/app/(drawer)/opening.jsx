@@ -12,87 +12,6 @@ import { MaterialIcons, FontAwesome } from "@expo/vector-icons";
 import JobDetailsModal from "../../components/jobDetailsModal";
 import ApplyJobModal from "../../components/applyJobModal";
 
-// Extended mock data for job listings
-// const jobData = [
-//   {
-//     id: "1",
-//     company: "MakeMyTrip",
-//     role: "SDE",
-//     salary: "35000/Month",
-//     location: "Bangalore",
-//     schedule: "Full Time",
-//     type: "Intern+FTE",
-//     details:
-//       "MakeMyTrip is hiring SDE for Full-time In-Office role at a monthly stipend of 35,000.",
-//     logo: "https://play-lh.googleusercontent.com/19I7zjhAAAud9AztLiIxD1MYVdHusoeaW2-7Fx2FUJvcVZBbUBcGKjBBVPsHkFBLWMs=s256-rw",
-//     jobId: "10000",
-//     internshipStipend: "35000",
-//     companyCtc: "2550000",
-//     minCgpa: "7.0",
-//     maxBacklogs: "0",
-//     branches: "CSE, IT",
-//     gender: "No restriction",
-//     applyBy: "2025-05-03 02:39:00",
-//   },
-//   {
-//     id: "2",
-//     company: "Microsoft",
-//     role: "SDE",
-//     salary: "0/Month",
-//     location: "In-Office",
-//     schedule: "Full Time",
-//     type: "FTE",
-//     details: "Microsoft is hiring SDE for Full-time In-Office role.",
-//     logo: "https://play-lh.googleusercontent.com/19I7zjhAAAud9AztLiIxD1MYVdHusoeaW2-7Fx2FUJvcVZBbUBcGKjBBVPsHkFBLWMs=s256-rw",
-//     jobId: "10001",
-//     internshipStipend: "N/A",
-//     companyCtc: "2000000",
-//     minCgpa: "8.0",
-//     maxBacklogs: "1",
-//     branches: "CSE, ECE, IT",
-//     gender: "No restriction",
-//     applyBy: "2025-04-01 11:00:00",
-//   },
-//   {
-//     id: "3",
-//     company: "Amazon",
-//     role: "SDE",
-//     salary: "0/Month",
-//     location: "Bangalore",
-//     schedule: "Full Time",
-//     type: "FTE",
-//     details: "Amazon is hiring SDE for Full-time In-Office role.",
-//     logo: "https://play-lh.googleusercontent.com/19I7zjhAAAud9AztLiIxD1MYVdHusoeaW2-7Fx2FUJvcVZBbUBcGKjBBVPsHkFBLWMs=s256-rw",
-//     jobId: "10002",
-//     internshipStipend: "N/A",
-//     companyCtc: "2800000",
-//     minCgpa: "7.5",
-//     maxBacklogs: "1",
-//     branches: "CSE, ECE",
-//     gender: "No restriction",
-//     applyBy: "2025-06-01 12:00:00",
-//   },
-//   {
-//     id: "4",
-//     company: "Google",
-//     role: "Software Engineer",
-//     salary: "45000/Month",
-//     location: "Remote",
-//     schedule: "Full Time",
-//     type: "Intern+FTE",
-//     details: "Google is hiring Software Engineers for Remote Full-time role.",
-//     logo: "https://play-lh.googleusercontent.com/19I7zjhAAAud9AztLiIxD1MYVdHusoeaW2-7Fx2FUJvcVZBbUBcGKjBBVPsHkFBLWMs=s256-rw",
-//     jobId: "10003",
-//     internshipStipend: "45000",
-//     companyCtc: "3000000",
-//     minCgpa: "8.5",
-//     maxBacklogs: "0",
-//     branches: "CSE, ECE, IT",
-//     gender: "No restriction",
-//     applyBy: "2025-07-15 10:00:00",
-//   },
-// ];
-
 const JobCard = ({ job, onInfoPress, onApplyPress }) => {
   return (
     <View style={styles.card}>
@@ -147,7 +66,9 @@ const JobListingScreen = () => {
   useEffect(() => {
     // eslint-disable-next-line
     const data = (async () => {
-      const response = await fetch("http://10.0.2.2:4000/api/opening/getall");
+      const response = await fetch(
+        "http://192.168.29.206:4000/api/opening/getall"
+      );
       const data = await response.json();
       setAllCompanies(data.data);
       let ongoingOpen = data.data.filter((item) => {
