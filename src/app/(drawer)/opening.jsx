@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -12,7 +12,7 @@ import { MaterialIcons, FontAwesome } from "@expo/vector-icons";
 import JobDetailsModal from "../../components/jobDetailsModal";
 import ApplyJobModal from "../../components/applyJobModal";
 import CircularLoaderScreen from "../../components/circularLoader";
-import { useRoute } from "@react-navigation/native";
+import { AuthContext } from "../AuthContext";
 
 const JobCard = ({ job, onInfoPress, onApplyPress }) => {
   return (
@@ -59,8 +59,7 @@ const JobCard = ({ job, onInfoPress, onApplyPress }) => {
 };
 
 const JobListingScreen = () => {
-  const route = useRoute();
-  const { token } = route.params || {};
+  const { token } = useContext(AuthContext);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedJob, setSelectedJob] = useState(null);
   const [applyModalVisible, setApplyModalVisible] = useState(false);

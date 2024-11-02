@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useNavigation } from "expo-router";
 import {
   View,
@@ -11,8 +11,11 @@ import {
 import Icon from "react-native-vector-icons/FontAwesome";
 
 import CircularLoaderScreen from "../components/circularLoader";
+import { AuthContext } from "./AuthContext";
 
-const Login = ({ token, storeToken }) => {
+const Login = () => {
+  const { token, storeToken, removeToken } = useContext(AuthContext);
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [hidePassword, setHidePassword] = useState(true);
@@ -39,10 +42,13 @@ const Login = ({ token, storeToken }) => {
     if (data.message === "success") {
       await storeToken("authToken", data.authToken);
       setLoading(false);
+      setEmail("");
+      setPassword("");
       Alert.alert("Login successful");
       navigator.navigate("(drawer)");
     } else {
       Alert.alert("Login failed");
+      setLoading(false);
     }
   };
 

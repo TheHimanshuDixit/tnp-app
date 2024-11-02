@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   Modal,
   View,
@@ -9,11 +9,10 @@ import {
 } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
 import CircularLoaderScreen from "../../components/circularLoader";
-import { useRoute } from "@react-navigation/native";
+import { AuthContext } from "../AuthContext";
 
 const Myapplications = () => {
-  const route = useRoute();
-  const { token } = route.params || {};
+  const { token } = useContext(AuthContext);
   const [applications, setApplications] = useState([]);
   const [company, setCompany] = useState({});
   const [viewCompany, setViewCompany] = useState({});
@@ -32,6 +31,7 @@ const Myapplications = () => {
   useEffect(() => {
     const fetchData = async () => {
       if (token) {
+        setLoading(true);
         try {
           // Fetch applications
           const applicationResponse = await fetch(

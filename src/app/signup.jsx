@@ -41,12 +41,20 @@ const SignupScreen = () => {
       body: JSON.stringify({ name, email, enrollnment, password, phoneno }),
     });
     const data = await response.json();
+    console.log(data);
     if (data.message === "success") {
       setLoading(false);
-      storeToken("authToken", data.authToken);
+      await storeToken("authToken", data.authToken);
+      setName("");
+      setEmail("");
+      setPhoneno("");
+      setEnrollnment("");
+      setPassword("");
+      setConfirmPassword("");
       Alert.alert("Success", "Signup successful");
       navigator.navigate("index");
     } else {
+      setLoading(false);
       Alert.alert("Error", "Signup failed");
     }
   };

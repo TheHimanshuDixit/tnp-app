@@ -35,7 +35,7 @@ const ApplyJobModal = ({
   const [resume, setResume] = useState(null);
   const [getResume, setGetResume] = useState(null);
   const [resumeModalVisible, setResumeModalVisible] = useState(false);
-  cosnt[loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleInputChange = (field, value) => {
     setForm({ ...form, [field]: value });
@@ -209,6 +209,9 @@ const ApplyJobModal = ({
               onPress={pickDocument}>
               <Text style={styles.fileUploadText}>Upload New Resume</Text>
             </TouchableOpacity>
+            {resume && (
+              <Text style={styles.fileUploadText}>Resume uploaded</Text>
+            )}
             <Text style={styles.fileUploadText}>
               {getResume && (
                 <TouchableOpacity onPress={() => setResumeModalVisible(true)}>

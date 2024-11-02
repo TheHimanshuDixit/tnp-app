@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -9,11 +9,10 @@ import {
 } from "react-native";
 import { Table, Row } from "react-native-table-component";
 import CircularLoaderScreen from "../../components/circularLoader";
-import { useRoute } from "@react-navigation/native";
+import { AuthContext } from "../AuthContext";
 
 const PlacementAttendance = () => {
-  const route = useRoute();
-  const { token } = route.params || {};
+  const { token } = useContext(AuthContext);
   const [companies, setCompanies] = useState([]);
   const [attendanceData, setAttendanceData] = useState({});
   const [selectedCompany, setSelectedCompany] = useState(null);
@@ -22,6 +21,7 @@ const PlacementAttendance = () => {
 
   const fetchData = async () => {
     if (token) {
+      setLoading(true);
       fetch("http://192.168.29.206:4000/api/student", {
         method: "GET",
         headers: {

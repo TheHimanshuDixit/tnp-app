@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -15,11 +15,10 @@ import * as DocumentPicker from "expo-document-picker";
 import { ScrollView } from "react-native-gesture-handler";
 import { WebView } from "react-native-webview";
 import CircularLoaderScreen from "../../components/circularLoader";
-import { useRoute } from "@react-navigation/native";
+import { AuthContext } from "../AuthContext";
 
 const MyProfile = () => {
-  const route = useRoute();
-  const { token } = route.params || {};
+  const { token } = useContext(AuthContext);
   const [profile, setProfile] = useState({
     enroll: "",
     coverletter: "",
@@ -45,6 +44,7 @@ const MyProfile = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       if (token) {
+        setLoading(true);
         try {
           const res = await fetch(
             "http://192.168.29.206:4000/api/auth/profile",
@@ -111,8 +111,6 @@ const MyProfile = () => {
       type: "application/pdf", // You can change this to allow other types of documents
       copyToCacheDirectory: true,
     });
-
-    // console.log(result);
 
     if (!result.canceled) {
       setResume(result);
@@ -379,6 +377,7 @@ const MyProfile = () => {
         {/* Resume Upload Section */}
         <View style={{ marginBottom: 20 }}>
           <Button title="Upload Resume" onPress={handleResumePicker} />
+          {resume && <Text>Resume Uploaded</Text>}
           {getResume && (
             <TouchableOpacity onPress={() => setResumeModalVisible(true)}>
               <Text style={{ color: "blue", textDecorationLine: "underline" }}>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Drawer } from "expo-router/drawer";
 import Ionicons from "react-native-vector-icons/Ionicons";
@@ -10,11 +10,10 @@ import {
 import logo from "../../assets/images/logo.png";
 import { useRouter } from "expo-router";
 import CircularLoaderScreen from "../../components/circularLoader";
-import { useRoute } from "@react-navigation/native";
+import { AuthContext } from "../AuthContext";
 
 export default function Layout() {
-  const route = useRoute();
-  const { token } = route.params || {};
+  const { token, removeToken } = useContext(AuthContext);
   const [profilePic, setProfilePic] = useState("");
   const [profileEmail, setProfileEmail] = useState("");
   const [profileName, setProfileName] = useState("");
@@ -23,6 +22,7 @@ export default function Layout() {
   useEffect(() => {
     const fetchProfile = async () => {
       if (token) {
+        setLoading(true);
         try {
           const res = await fetch(
             "http://192.168.29.206:4000/api/auth/profile",
@@ -61,6 +61,7 @@ export default function Layout() {
             profilePic={profilePic}
             profileEmail={profileEmail}
             profileName={profileName}
+            removeToken={removeToken}
           />
         )}>
         <Drawer.Screen
@@ -202,8 +203,9 @@ function CustomDrawerContent(props) {
               {
                 text: "OK",
                 onPress: async () => {
-                  await AsyncStorage.removeItem("authToken");
-                  router.navigate("login");
+                  await props.removeToken();
+                  console.log("OK Pressed");
+                  router.navigate("/login");
                 },
               },
             ]);
