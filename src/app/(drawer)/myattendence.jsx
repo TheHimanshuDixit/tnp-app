@@ -8,30 +8,19 @@ import {
   FlatList,
 } from "react-native";
 import { Table, Row } from "react-native-table-component";
-import { LogBox } from "react-native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-LogBox.ignoreLogs(["Invalid prop textStyle of type array supplied to Cell"]);
+import CircularLoaderScreen from "../../components/circularLoader";
+import { useRoute } from "@react-navigation/native";
 
 const PlacementAttendance = () => {
+  const route = useRoute();
+  const { token } = route.params || {};
   const [companies, setCompanies] = useState([]);
   const [attendanceData, setAttendanceData] = useState({});
   const [selectedCompany, setSelectedCompany] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
-
-  const getData = async (key) => {
-    try {
-      const value = await AsyncStorage.getItem(key);
-      if (value !== null) {
-        // Data found
-        return value;
-      }
-    } catch (error) {
-      console.error("Error retrieving data", error);
-    }
-  };
+  const [loading, setLoading] = useState(true);
 
   const fetchData = async () => {
-    const token = await getData("authToken");
     if (token) {
       fetch("http://192.168.29.206:4000/api/student", {
         method: "GET",
@@ -41,6 +30,7 @@ const PlacementAttendance = () => {
       })
         .then((response) => response.json())
         .then((data) => {
+          setLoading(false);
           const fetchedCompanies = data.data.map((item, index) => ({
             id: (index + 1).toString(), // Convert index to string for ID
             name: item.company.name,
@@ -73,7 +63,7 @@ const PlacementAttendance = () => {
   useEffect(() => {
     // Fetch attendance data from API
     fetchData();
-  }, []);
+  }, [token]);
 
   const openAttendanceModal = (company) => {
     setSelectedCompany(company);
@@ -105,7 +95,9 @@ const PlacementAttendance = () => {
     );
   };
 
-  return (
+  return loading ? (
+    <CircularLoaderScreen />
+  ) : (
     <View style={styles.container}>
       <Text style={styles.title}>Placement Attendance</Text>
       <FlatList

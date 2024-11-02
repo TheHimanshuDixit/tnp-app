@@ -9,6 +9,7 @@ import {
   Alert,
 } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons"; // Import Ionicons for the eye icon
+import CircularLoaderScreen from "../components/circularLoader";
 
 const ForgotPasswordScreen = () => {
   const [email, setEmail] = useState("");
@@ -20,9 +21,11 @@ const ForgotPasswordScreen = () => {
   const [isConfirmPasswordVisible, setConfirmPasswordVisible] = useState(false); // Toggle for confirm password visibility
   const navigator = useNavigation();
   const [otpSent, setOtpSent] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleSendResetLink = async (e) => {
     // Here you can add the logic to send the reset link (e.g., API call)
+    setLoading(true);
     e.preventDefault();
     const data = await fetch("http://192.168.29.206:4000/api/auth/forgot", {
       method: "POST",
@@ -33,6 +36,7 @@ const ForgotPasswordScreen = () => {
     });
     const response = await data.json();
     if (response.message === "Email sent") {
+      setLoading(false);
       setOtpSent(response.otp);
       setStep(2);
       setNewPassword("");
@@ -42,6 +46,7 @@ const ForgotPasswordScreen = () => {
   };
 
   const handleChangePassword = async (e) => {
+    setLoading(true);
     setStep(1); // Reset to step 1
     e.preventDefault();
     if (newPassword !== confirmPassword) {
@@ -73,12 +78,15 @@ const ForgotPasswordScreen = () => {
     );
     const response = await data.json();
     if (response.message === "success") {
+      setLoading(false);
       Alert.alert("Success", "Your password has been changed!");
       navigator.navigate("index");
     }
   };
 
-  return (
+  return loading ? (
+    <CircularLoaderScreen />
+  ) : (
     <View style={styles.container}>
       <Text style={styles.title}>Forgot Password</Text>
       <Text style={styles.subtitle}>

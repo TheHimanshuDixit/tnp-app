@@ -2,35 +2,26 @@ import React, { useEffect, useState } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Drawer } from "expo-router/drawer";
 import Ionicons from "react-native-vector-icons/Ionicons";
-import { View, Text, TouchableOpacity, Image } from "react-native";
+import { View, Text, TouchableOpacity, Image, Alert } from "react-native";
 import {
   DrawerContentScrollView,
   DrawerItemList,
 } from "@react-navigation/drawer";
 import logo from "../../assets/images/logo.png";
 import { useRouter } from "expo-router";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import CircularLoaderScreen from "../../components/circularLoader";
+import { useRoute } from "@react-navigation/native";
 
 export default function Layout() {
+  const route = useRoute();
+  const { token } = route.params || {};
   const [profilePic, setProfilePic] = useState("");
   const [profileEmail, setProfileEmail] = useState("");
   const [profileName, setProfileName] = useState("");
-
-  const getData = async (key) => {
-    try {
-      const value = await AsyncStorage.getItem(key);
-      if (value !== null) {
-        // Data found
-        return value;
-      }
-    } catch (error) {
-      console.error("Error retrieving data", error);
-    }
-  };
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchProfile = async () => {
-      const token = await getData("authToken");
       if (token) {
         try {
           const res = await fetch(
@@ -46,6 +37,7 @@ export default function Layout() {
 
           const data = await res.json();
           if (data) {
+            setLoading(false);
             setProfilePic(data.image);
             setProfileEmail(data.email);
             setProfileName(data.name);
@@ -57,8 +49,10 @@ export default function Layout() {
     };
 
     fetchProfile();
-  }, []);
-  return (
+  }, [token]);
+  return loading ? (
+    <CircularLoaderScreen />
+  ) : (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <Drawer
         drawerContent={(props) => (
@@ -90,6 +84,7 @@ export default function Layout() {
               <Ionicons name="person-outline" size={size} color={color} />
             ),
           }}
+          initialParams={{ token }}
         />
         <Drawer.Screen
           name="myattendence"
@@ -101,6 +96,7 @@ export default function Layout() {
               <Ionicons name="calendar-outline" size={size} color={color} />
             ),
           }}
+          initialParams={{ token }}
         />
         <Drawer.Screen
           name="opening"
@@ -112,6 +108,7 @@ export default function Layout() {
               <Ionicons name="briefcase-outline" size={size} color={color} />
             ),
           }}
+          initialParams={{ token }}
         />
         <Drawer.Screen
           name="myapplication"
@@ -127,6 +124,7 @@ export default function Layout() {
               />
             ),
           }}
+          initialParams={{ token }}
         />
         <Drawer.Screen
           name="team"
@@ -195,8 +193,20 @@ function CustomDrawerContent(props) {
             alignItems: "center",
           }}
           onPress={() => {
-            AsyncStorage.clear();
-            router.push("/login");
+            Alert.alert("Logout", "Are you sure you want to logout?", [
+              {
+                text: "Cancel",
+                onPress: () => console.log("Cancel Pressed"),
+                style: "cancel",
+              },
+              {
+                text: "OK",
+                onPress: async () => {
+                  await AsyncStorage.removeItem("authToken");
+                  router.navigate("login");
+                },
+              },
+            ]);
           }}>
           <Text style={{ color: "white", fontSize: 16 }}>Logout</Text>
         </TouchableOpacity>

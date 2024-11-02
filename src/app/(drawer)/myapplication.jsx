@@ -8,13 +8,17 @@ import {
   StyleSheet,
 } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import CircularLoaderScreen from "../../components/circularLoader";
+import { useRoute } from "@react-navigation/native";
 
 const Myapplications = () => {
+  const route = useRoute();
+  const { token } = route.params || {};
   const [applications, setApplications] = useState([]);
   const [company, setCompany] = useState({});
   const [viewCompany, setViewCompany] = useState({});
   const [modalVisible, setModalVisible] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   // Open modal to view company details
   const handleOpenModal = (application) => {
@@ -24,23 +28,9 @@ const Myapplications = () => {
       setModalVisible(true);
     }
   };
-
-  const getData = async (key) => {
-    try {
-      const value = await AsyncStorage.getItem(key);
-      if (value !== null) {
-        // Data found
-        return value;
-      }
-    } catch (error) {
-      console.error("Error retrieving data", error);
-    }
-  };
-
   // Fetch applications and company data
   useEffect(() => {
     const fetchData = async () => {
-      const token = await getData("authToken");
       if (token) {
         try {
           // Fetch applications
@@ -67,13 +57,14 @@ const Myapplications = () => {
             companyMap[opening._id] = opening;
           });
           setCompany(companyMap);
+          setLoading(false);
         } catch (error) {
           console.log(error);
         }
       }
     };
     fetchData();
-  }, []);
+  }, [token]);
 
   // Render a single application item
   const renderItem = ({ item: application, index }) => (
@@ -98,7 +89,9 @@ const Myapplications = () => {
     </View>
   );
 
-  return (
+  return loading ? (
+    <CircularLoaderScreen />
+  ) : (
     <View style={styles.container}>
       <Text style={styles.title}>My Applications</Text>
       <Text style={styles.subtitle}>

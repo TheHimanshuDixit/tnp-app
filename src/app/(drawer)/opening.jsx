@@ -11,6 +11,8 @@ import {
 import { MaterialIcons, FontAwesome } from "@expo/vector-icons";
 import JobDetailsModal from "../../components/jobDetailsModal";
 import ApplyJobModal from "../../components/applyJobModal";
+import CircularLoaderScreen from "../../components/circularLoader";
+import { useRoute } from "@react-navigation/native";
 
 const JobCard = ({ job, onInfoPress, onApplyPress }) => {
   return (
@@ -57,11 +59,14 @@ const JobCard = ({ job, onInfoPress, onApplyPress }) => {
 };
 
 const JobListingScreen = () => {
+  const route = useRoute();
+  const { token } = route.params || {};
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedJob, setSelectedJob] = useState(null);
   const [applyModalVisible, setApplyModalVisible] = useState(false);
   const [allCompanies, setAllCompanies] = useState([]);
   const [jobData, setJobData] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     // eslint-disable-next-line
@@ -75,6 +80,7 @@ const JobListingScreen = () => {
         return item.progress === "Ongoing";
       });
       setJobData(ongoingOpen);
+      setLoading(false);
     })();
   }, []);
 
@@ -102,7 +108,9 @@ const JobListingScreen = () => {
     setApplyModalVisible(true); // Show the apply modal
   };
 
-  return (
+  return loading ? (
+    <CircularLoaderScreen />
+  ) : (
     <View style={styles.container}>
       <FlatList
         showsVerticalScrollIndicator={false}
@@ -130,6 +138,7 @@ const JobListingScreen = () => {
         setApplyModalVisible={setApplyModalVisible}
         selectedJob={selectedJob}
         allCompanies={allCompanies}
+        token={token}
       />
     </View>
   );

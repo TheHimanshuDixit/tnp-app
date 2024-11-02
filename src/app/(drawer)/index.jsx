@@ -6,12 +6,35 @@ import {
   StyleSheet,
   Image,
   ScrollView,
+  BackHandler,
+  Alert,
 } from "react-native";
 import Carsoul from "../../components/crousal";
 import NoticeMarquee from "../../components/toprotater";
 import TestimonialCarousel from "../../components/testimonial";
+import { useFocusEffect } from "@react-navigation/native";
 
 export default function Index() {
+  useFocusEffect(
+    React.useCallback(() => {
+      const onBackPress = () => {
+        Alert.alert("Exit App", "Do you want to exit?", [
+          {
+            text: "Cancel",
+            onPress: () => null,
+            style: "cancel",
+          },
+          { text: "YES", onPress: () => BackHandler.exitApp() },
+        ]);
+        return true;
+      };
+
+      BackHandler.addEventListener("hardwareBackPress", onBackPress);
+
+      return () =>
+        BackHandler.removeEventListener("hardwareBackPress", onBackPress);
+    }, [])
+  );
 
   const topRecruiters = [
     {
@@ -50,10 +73,7 @@ export default function Index() {
             companies around the globe. Join us today and take the next step in
             your career!
           </Text>
-          <Button
-            color="green"
-            title="Explore"
-          />
+          <Button color="green" title="Explore" />
         </View>
         <View style={styles.recruitersSection}>
           <Text style={styles.recruitersTitle}>Top Recruiters</Text>

@@ -12,13 +12,14 @@ import {
 } from "react-native";
 import * as DocumentPicker from "expo-document-picker";
 import { WebView } from "react-native-webview";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import CircularLoaderScreen from "./circularLoader";
 
 const ApplyJobModal = ({
   applyModalVisible,
   setApplyModalVisible,
   selectedJob,
   allCompanies,
+  token,
 }) => {
   const [form, setForm] = useState({
     name: "",
@@ -34,18 +35,7 @@ const ApplyJobModal = ({
   const [resume, setResume] = useState(null);
   const [getResume, setGetResume] = useState(null);
   const [resumeModalVisible, setResumeModalVisible] = useState(false);
-
-  const getData = async (key) => {
-    try {
-      const value = await AsyncStorage.getItem(key);
-      if (value !== null) {
-        // Data found
-        return value;
-      }
-    } catch (error) {
-      console.error("Error retrieving data", error);
-    }
-  };
+  cosnt[loading, setLoading] = useState(false);
 
   const handleInputChange = (field, value) => {
     setForm({ ...form, [field]: value });
@@ -59,8 +49,8 @@ const ApplyJobModal = ({
   };
 
   const handleSubmit = async () => {
-    // handle form submission logic here
-    const token = await getData("authToken");
+    // handle form submission logic headers
+    setLoading(true);
     if (token) {
       if (
         form.cgpa >= selectedJob.cgpacritera &&
@@ -96,11 +86,14 @@ const ApplyJobModal = ({
         );
         const data = await response.json();
         if (data.message === "success") {
+          setLoading(false);
           Alert.alert("Applied Successfully");
         } else {
+          setLoading(false);
           Alert.alert("Already Applied");
         }
       } else {
+        setLoading(false);
         Alert.alert("You are not eligible for this job");
       }
     }
@@ -109,8 +102,8 @@ const ApplyJobModal = ({
 
   useEffect(() => {
     const fetchProfile = async () => {
-      const token = await getData("authToken");
       if (token) {
+        setLoading(true);
         try {
           const res = await fetch(
             "http://192.168.29.206:4000/api/auth/profile",
@@ -134,6 +127,7 @@ const ApplyJobModal = ({
           });
           setPlaced(data.placed);
           setGetResume(data.resume);
+          setLoading(false);
           for (let i = 0; i < allCompanies.length; i++) {
             if (
               data.companys.includes(allCompanies[i]._id) &&
@@ -149,9 +143,11 @@ const ApplyJobModal = ({
     };
 
     fetchProfile();
-  }, []);
+  }, [token]);
 
-  return (
+  return loading ? (
+    <CircularLoaderScreen />
+  ) : (
     <Modal
       animationType="slide"
       transparent={true}

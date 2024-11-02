@@ -10,13 +10,20 @@ import {
   TouchableOpacity,
 } from "react-native";
 import Collapsible from "react-native-collapsible";
+import CircularLoaderScreen from "../../components/circularLoader";
 
 const Contact = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async () => {
+    if (!name || !email || !message) {
+      Alert.alert("Error", "All fields are required");
+      return;
+    }
+    setLoading(true);
     const response = await fetch(
       "http://192.168.29.206:4000/api/contact/send",
       {
@@ -32,6 +39,7 @@ const Contact = () => {
       setEmail("");
       setName("");
       setMessage("");
+      setLoading(false);
       Alert.alert(
         "Form Submission",
         `Name: ${name}\nEmail: ${email}\nMessage: ${message}`
@@ -41,7 +49,9 @@ const Contact = () => {
     }
   };
 
-  return (
+  return loading ? (
+    <CircularLoaderScreen />
+  ) : (
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.formSection}>
         <Text style={styles.formTitle}>

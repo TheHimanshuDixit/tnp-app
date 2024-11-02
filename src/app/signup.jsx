@@ -9,8 +9,12 @@ import {
 } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { useNavigation } from "expo-router";
+import CircularLoaderScreen from "../components/circularLoader";
+import { useRoute } from "@react-navigation/native";
 
 const SignupScreen = () => {
+  const route = useRoute();
+  const { storeToken } = route.params || {};
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phoneno, setPhoneno] = useState("");
@@ -20,8 +24,10 @@ const SignupScreen = () => {
   const [isPasswordVisible, setPasswordVisible] = useState(false); // State to toggle password visibility
   const [isConfirmPasswordVisible, setConfirmPasswordVisible] = useState(false); // State to toggle confirm password visibility
   const navigator = useNavigation();
+  const [loading, setLoading] = useState(false);
 
   const handleSignup = async (e) => {
+    setLoading(true);
     e.preventDefault();
     if (password !== confirmPassword) {
       Alert.alert("Error", "Passwords do not match");
@@ -36,6 +42,8 @@ const SignupScreen = () => {
     });
     const data = await response.json();
     if (data.message === "success") {
+      setLoading(false);
+      storeToken("authToken", data.authToken);
       Alert.alert("Success", "Signup successful");
       navigator.navigate("index");
     } else {
@@ -43,7 +51,9 @@ const SignupScreen = () => {
     }
   };
 
-  return (
+  return loading ? (
+    <CircularLoaderScreen />
+  ) : (
     <View style={styles.container}>
       <Text style={styles.title}>Create Account</Text>
 

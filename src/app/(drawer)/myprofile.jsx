@@ -14,9 +14,12 @@ import * as ImagePicker from "expo-image-picker";
 import * as DocumentPicker from "expo-document-picker";
 import { ScrollView } from "react-native-gesture-handler";
 import { WebView } from "react-native-webview";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import CircularLoaderScreen from "../../components/circularLoader";
+import { useRoute } from "@react-navigation/native";
 
 const MyProfile = () => {
+  const route = useRoute();
+  const { token } = route.params || {};
   const [profile, setProfile] = useState({
     enroll: "",
     coverletter: "",
@@ -37,21 +40,10 @@ const MyProfile = () => {
   const [profilePhoto, setProfilePhoto] = useState(null);
   const [getProfile, setGetProfile] = useState(null);
   const [resumeModalVisible, setResumeModalVisible] = useState(false);
-  const getData = async (key) => {
-    try {
-      const value = await AsyncStorage.getItem(key);
-      if (value !== null) {
-        // Data found
-        return value;
-      }
-    } catch (error) {
-      console.error("Error retrieving data", error);
-    }
-  };
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchProfile = async () => {
-      const token = await getData("authToken");
       if (token) {
         try {
           const res = await fetch(
@@ -66,6 +58,7 @@ const MyProfile = () => {
           );
 
           const data = await res.json();
+          setLoading(false);
           setProfile({
             enroll: data.enrollnment,
             coverletter: data.coverletter,
@@ -89,7 +82,7 @@ const MyProfile = () => {
     };
 
     fetchProfile();
-  }, []);
+  }, [token]);
 
   const handleImagePicker = async () => {
     const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
@@ -135,8 +128,7 @@ const MyProfile = () => {
   };
 
   const handleSave = async () => {
-    // console.log(resume, profilePhoto);
-    const token = await getData("authToken");
+    setLoading(true);
     if (token) {
       try {
         const formData = new FormData();
@@ -178,8 +170,10 @@ const MyProfile = () => {
         if (data.message === "success") {
           setGetResume(data.data.resume);
           setGetProfile(data.data.image);
+          setLoading(false);
           Alert.alert("Profile updated successfully");
         } else {
+          setLoading(false);
           Alert.alert("Failed to update profile", data.message);
           setProfilePhoto(null);
           setResume(null);
@@ -195,7 +189,9 @@ const MyProfile = () => {
     }
   };
 
-  return (
+  return loading ? (
+    <CircularLoaderScreen />
+  ) : (
     <ScrollView contentContainerStyle={{ padding: 20 }}>
       <View style={{ padding: 20 }}>
         <Text style={{ fontSize: 24, fontWeight: "bold", marginBottom: 20 }}>

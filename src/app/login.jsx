@@ -9,48 +9,25 @@ import {
   Alert,
 } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const Login = () => {
+import CircularLoaderScreen from "../components/circularLoader";
+
+const Login = ({ token, storeToken }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [hidePassword, setHidePassword] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   const navigator = useNavigation();
 
-  const storeData = async (key, value) => {
-    try {
-      await AsyncStorage.setItem(key, value);
-    } catch (error) {
-      console.error("Error saving data", error);
-    }
-  };
-
-  const getData = async (key) => {
-    try {
-      const value = await AsyncStorage.getItem(key);
-      if (value !== null) {
-        // Data found
-        return value;
-      }
-    } catch (error) {
-      console.error("Error retrieving data", error);
-    }
-  };
-
   useEffect(() => {
-    const checkToken = async () => {
-      const token = await getData("authToken");
-      if (token) {
-        navigator.navigate("(drawer)");
-      }
-    };
-    checkToken();
+    if (token) {
+      navigator.navigate("(drawer)");
+    }
   }, []);
 
   const handleLogin = async (e) => {
-    // e.preventDefault();
-    console.log(email, password);
+    setLoading(true);
     const response = await fetch("http://192.168.29.206:4000/api/auth/login", {
       method: "POST",
       headers: {
@@ -60,7 +37,8 @@ const Login = () => {
     });
     const data = await response.json();
     if (data.message === "success") {
-      storeData("authToken", data.authToken);
+      await storeToken("authToken", data.authToken);
+      setLoading(false);
       Alert.alert("Login successful");
       navigator.navigate("(drawer)");
     } else {
@@ -74,7 +52,9 @@ const Login = () => {
   const handleSignup = () => {
     navigator.navigate("signup"); // Navigate to Signup screen
   };
-  return (
+  return loading ? (
+    <CircularLoaderScreen />
+  ) : (
     <View style={styles.container}>
       <Text style={styles.title}>Login</Text>
 

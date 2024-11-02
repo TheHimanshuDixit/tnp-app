@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, Image, StyleSheet, ScrollView } from "react-native";
+import CircularLoaderScreen from "../../components/circularLoader";
 
 const Team = () => {
   // Sample data to replace API response
@@ -36,6 +37,7 @@ const Team = () => {
   // ];
 
   const [teams, setTeams] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     //eslint-disable-next-line
@@ -43,10 +45,13 @@ const Team = () => {
       const response = await fetch("http://192.168.29.206:4000/api/team/get");
       const data = await response.json();
       setTeams(data.data);
+      setLoading(false);
     })();
   }, []);
 
-  return (
+  return loading ? (
+    <CircularLoaderScreen />
+  ) : (
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>
