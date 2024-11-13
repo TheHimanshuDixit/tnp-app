@@ -14,7 +14,7 @@ import ApplyJobModal from "../../components/applyJobModal";
 import CircularLoaderScreen from "../../components/circularLoader";
 import { AuthContext } from "../AuthContext";
 
-const JobCard = ({ job, onInfoPress, onApplyPress }) => {
+const JobCard = ({ job, onInfoPress, onApplyPress, CompTime }) => {
   return (
     <View style={styles.card}>
       <View style={styles.header}>
@@ -48,10 +48,11 @@ const JobCard = ({ job, onInfoPress, onApplyPress }) => {
         <TouchableOpacity style={styles.typeButton}>
           <Text style={styles.typeText}>{job.type}</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.applyButton}>
-          <Text style={styles.applyText} onPress={onApplyPress}>
-            Apply
-          </Text>
+        <TouchableOpacity
+          onPress={onApplyPress}
+          // disabled={CompTime()}
+          style={CompTime() ? styles.applyButton1 : styles.applyButton2}>
+          <Text style={styles.applyText}>Apply</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -71,7 +72,7 @@ const JobListingScreen = () => {
     // eslint-disable-next-line
     const data = (async () => {
       const response = await fetch(
-        "http://192.168.29.206:4000/api/opening/getall"
+        "https://placement-portall.onrender.com/api/opening/getall"
       );
       const data = await response.json();
       setAllCompanies(data.data);
@@ -120,6 +121,7 @@ const JobListingScreen = () => {
             job={item}
             onInfoPress={() => handleInfoPress(item)}
             onApplyPress={() => handleApplyPress(item)}
+            CompTime={() => handleCompTime(item.applyby)}
           />
         )}
       />
@@ -225,7 +227,13 @@ const styles = StyleSheet.create({
     color: "#007bff",
     fontWeight: "bold",
   },
-  applyButton: {
+  applyButton1: {
+    backgroundColor: "gray",
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 5,
+  },
+  applyButton2: {
     backgroundColor: "#007bff",
     paddingVertical: 8,
     paddingHorizontal: 12,

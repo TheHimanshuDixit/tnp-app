@@ -25,7 +25,7 @@ export default function Layout() {
         setLoading(true);
         try {
           const res = await fetch(
-            "http://192.168.29.206:4000/api/auth/profile",
+            "https://placement-portall.onrender.com/api/auth/profile",
             {
               method: "GET",
               headers: {

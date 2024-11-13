@@ -33,13 +33,16 @@ const SignupScreen = () => {
       Alert.alert("Error", "Passwords do not match");
       return;
     }
-    const response = await fetch("http://192.168.29.206:4000/api/auth/signup", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ name, email, enrollnment, password, phoneno }),
-    });
+    const response = await fetch(
+      "https://placement-portall.onrender.com/api/auth/signup",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ name, email, enrollnment, password, phoneno }),
+      }
+    );
     const data = await response.json();
     console.log(data);
     if (data.message === "success") {

@@ -75,7 +75,7 @@ const ApplyJobModal = ({
         formData.append("phone", form.phone);
         formData.append("branch", form.branch);
         const response = await fetch(
-          `http://192.168.29.206:4000/api/application/add/${cid}`,
+          `https://placement-portall.onrender.com/api/application/add/${selectedJob._id}`,
           {
             method: "POST",
             headers: {
@@ -106,7 +106,7 @@ const ApplyJobModal = ({
         setLoading(true);
         try {
           const res = await fetch(
-            "http://192.168.29.206:4000/api/auth/profile",
+            "https://placement-portall.onrender.com/api/auth/profile",
             {
               method: "GET",
               headers: {

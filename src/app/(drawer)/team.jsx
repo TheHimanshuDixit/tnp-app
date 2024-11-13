@@ -42,7 +42,9 @@ const Team = () => {
   useEffect(() => {
     //eslint-disable-next-line
     const data = (async () => {
-      const response = await fetch("http://192.168.29.206:4000/api/team/get");
+      const response = await fetch(
+        "https://placement-portall.onrender.com/api/team/get"
+      );
       const data = await response.json();
       setTeams(data.data);
       setLoading(false);

@@ -27,13 +27,16 @@ const ForgotPasswordScreen = () => {
     // Here you can add the logic to send the reset link (e.g., API call)
     setLoading(true);
     e.preventDefault();
-    const data = await fetch("http://192.168.29.206:4000/api/auth/forgot", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ email }),
-    });
+    const data = await fetch(
+      "https://placement-portall.onrender.com/api/auth/forgot",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
+      }
+    );
     const response = await data.json();
     if (response.message === "Email sent") {
       setLoading(false);
@@ -67,7 +70,7 @@ const ForgotPasswordScreen = () => {
       return;
     }
     const data = await fetch(
-      "http://192.168.29.206:4000/api/auth/updatepassword",
+      "https://placement-portall.onrender.com/api/auth/updatepassword",
       {
         method: "PUT",
         headers: {
