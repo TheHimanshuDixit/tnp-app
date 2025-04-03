@@ -21,6 +21,7 @@ const MyApplications = () => {
 
   // Open modal to view company details
   const handleOpenModal = (application) => {
+    if(!application) return;
     const selectedCompany = company[application.company];
     if (selectedCompany) {
       setViewCompany(selectedCompany);
@@ -116,12 +117,21 @@ const MyApplications = () => {
         <Text style={styles.ad}>Apply Date</Text>
         <Text style={styles.v}>View</Text>
       </View>
-      <FlatList
-        data={applications}
-        renderItem={renderItem}
-        keyExtractor={(item) => item._id} // Assuming _id is unique
-        contentContainerStyle={styles.list}
-      />
+      {applications.length > 0 ? (
+        <FlatList
+          data={applications}
+          renderItem={renderItem}
+          keyExtractor={(item) => item._id} // Assuming _id is unique
+          contentContainerStyle={styles.list}
+        />
+      ) : (
+        <View style={{ alignItems: "center", marginTop: 20 }}>
+          <Text style={{ fontSize: 18, color: "#888" }}>
+            No applications found.
+          </Text>
+        </View>
+      )}
+
       <Modal visible={modalVisible} transparent={true} animationType="slide">
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
@@ -174,36 +184,36 @@ const MyApplications = () => {
               <Text style={styles.modalLabel}>Duration:</Text>{" "}
               {viewCompany.duration}
             </Text>
-            {viewCompany.requirements.length > 0 && (
-              <View>
-                <Text style={styles.modalItem}>
-                  <Text style={styles.modalLabel}>Requirements:</Text>{" "}
-                  {viewCompany.requirements.map((key) => {
-                    return key + ",";
-                  })}
-                </Text>
-              </View>
-            )}
-            {viewCompany.jobdescription.length > 0 && (
-              <View>
-                <Text style={styles.modalItem}>
-                  <Text style={styles.modalLabel}>Job Description:</Text>{" "}
-                  {viewCompany.jobdescription.map((key) => {
-                    return key + ",";
-                  })}
-                </Text>
-              </View>
-            )}
-            {viewCompany.selectionprocess.length > 0 && (
-              <View>
-                <Text style={styles.modalItem}>
-                  <Text style={styles.modalLabel}>Selection Process:</Text>{" "}
-                  {viewCompany.selectionprocess.map((key) => {
-                    return key + ",";
-                  })}
-                </Text>
-              </View>
-            )}
+            {viewCompany.requirements &&
+              viewCompany.requirements.length > 0 && (
+                <View>
+                  <Text style={styles.modalItem}>
+                    <Text style={styles.modalLabel}>Requirements:</Text>{" "}
+                    {viewCompany.requirements.join(", ")}
+                  </Text>
+                </View>
+              )}
+
+            {viewCompany.jobdescription &&
+              viewCompany.jobdescription.length > 0 && (
+                <View>
+                  <Text style={styles.modalItem}>
+                    <Text style={styles.modalLabel}>Job Description:</Text>{" "}
+                    {viewCompany.jobdescription.join(", ")}
+                  </Text>
+                </View>
+              )}
+
+            {viewCompany.selectionprocess &&
+              viewCompany.selectionprocess.length > 0 && (
+                <View>
+                  <Text style={styles.modalItem}>
+                    <Text style={styles.modalLabel}>Selection Process:</Text>{" "}
+                    {viewCompany.selectionprocess.join(", ")}
+                  </Text>
+                </View>
+              )}
+
             {viewCompany.ppt && (
               <View>
                 <Text style={styles.modalItem}>
