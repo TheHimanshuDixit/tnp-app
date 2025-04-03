@@ -11,6 +11,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const [token, setToken] = useState("");
+  const [refresh, setRefresh] = useState(false);
 
   // Fetch token from storage on app load
   useEffect(() => {
@@ -46,7 +47,7 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
-  const contextValue = React.useMemo(() => ({ token, storeToken, removeToken }), [token, storeToken, removeToken]);
+  const contextValue = React.useMemo(() => ({ token, storeToken, removeToken, refresh, setRefresh }), [token, storeToken, removeToken]);
 
   return (
     <AuthContext.Provider value={contextValue}>

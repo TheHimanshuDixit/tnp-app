@@ -61,7 +61,7 @@ const JobCard = ({ job, onInfoPress, onApplyPress, CompTime }) => {
 };
 
 const JobListingScreen = () => {
-  const { token } = useContext(AuthContext);
+  const { token, refresh, setRefresh } = useContext(AuthContext);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedJob, setSelectedJob] = useState(null);
   const [applyModalVisible, setApplyModalVisible] = useState(false);
@@ -135,6 +135,8 @@ const JobListingScreen = () => {
         selectedJob={selectedJob}
         allCompanies={allCompanies}
         token={token}
+        refresh={refresh}
+        setRefresh={setRefresh}
       />
     </View>
   );

@@ -6,13 +6,14 @@ import {
   FlatList,
   TouchableOpacity,
   StyleSheet,
+  ScrollView,
 } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
 import CircularLoaderScreen from "../../components/circularLoader";
 import { AuthContext } from "../../context/authContext";
 
 const MyApplications = () => {
-  const { token } = useContext(AuthContext);
+  const { token, refresh } = useContext(AuthContext);
   const [applications, setApplications] = useState([]);
   const [company, setCompany] = useState({});
   const [viewCompany, setViewCompany] = useState({});
@@ -65,7 +66,7 @@ const MyApplications = () => {
       }
     };
     fetchData();
-  }, [token]);
+  }, [token, refresh]);
 
   const dateISOToLocaleString = (isoString) => {
     const date = new Date(isoString);
@@ -135,124 +136,127 @@ const MyApplications = () => {
       <Modal visible={modalVisible} transparent={true} animationType="slide">
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Company Details</Text>
-            <Text style={styles.modalItem}>
-              <Text style={styles.modalLabel}>Name:</Text> {viewCompany.name}
-            </Text>
-            <Text style={styles.modalItem}>
-              <Text style={styles.modalLabel}>Job Title:</Text>{" "}
-              {viewCompany.jobId}
-            </Text>
-            <Text style={styles.modalItem}>
-              <Text style={styles.modalLabel}>Role:</Text> {viewCompany.role}
-            </Text>
-            <Text style={styles.modalItem}>
-              <Text style={styles.modalLabel}>Stipend:</Text>{" "}
-              {viewCompany.stipend} PM
-            </Text>
-            <Text style={styles.modalItem}>
-              <Text style={styles.modalLabel}>CTC:</Text> {viewCompany.ctc} LPA
-            </Text>
-            <Text style={styles.modalItem}>
-              <Text style={styles.modalLabel}>Min CGPA:</Text>{" "}
-              {viewCompany.cgpacritera}
-            </Text>
-            <Text style={styles.modalItem}>
-              <Text style={styles.modalLabel}>Backlogs:</Text>{" "}
-              {viewCompany.backlog}
-            </Text>
-            <Text style={styles.modalItem}>
-              <Text style={styles.modalLabel}>Branches:</Text>{" "}
-              {Array.isArray(viewCompany.branch)
-                ? viewCompany.branch.join(", ")
-                : "N/A"}
-            </Text>
-            <Text style={styles.modalItem}>
-              <Text style={styles.modalLabel}>Locations:</Text>{" "}
-              {Array.isArray(viewCompany.location)
-                ? viewCompany.location.join(", ")
-                : "N/A"}
-            </Text>
-            <Text style={styles.modalItem}>
-              <Text style={styles.modalLabel}>Gender:</Text>{" "}
-              {viewCompany.gender}
-            </Text>
-            <Text style={styles.modalItem}>
-              <Text style={styles.modalLabel}>Mode:</Text> {viewCompany.mode}
-            </Text>
-            <Text style={styles.modalItem}>
-              <Text style={styles.modalLabel}>Duration:</Text>{" "}
-              {viewCompany.duration}
-            </Text>
-            {viewCompany.requirements &&
-              viewCompany.requirements.length > 0 && (
+            <ScrollView style={styles.scrollView}>
+              <Text style={styles.modalTitle}>Company Details</Text>
+              <Text style={styles.modalItem}>
+                <Text style={styles.modalLabel}>Name:</Text> {viewCompany.name}
+              </Text>
+              <Text style={styles.modalItem}>
+                <Text style={styles.modalLabel}>Job Title:</Text>{" "}
+                {viewCompany.jobId}
+              </Text>
+              <Text style={styles.modalItem}>
+                <Text style={styles.modalLabel}>Role:</Text> {viewCompany.role}
+              </Text>
+              <Text style={styles.modalItem}>
+                <Text style={styles.modalLabel}>Stipend:</Text>{" "}
+                {viewCompany.stipend} PM
+              </Text>
+              <Text style={styles.modalItem}>
+                <Text style={styles.modalLabel}>CTC:</Text> {viewCompany.ctc}{" "}
+                LPA
+              </Text>
+              <Text style={styles.modalItem}>
+                <Text style={styles.modalLabel}>Min CGPA:</Text>{" "}
+                {viewCompany.cgpacritera}
+              </Text>
+              <Text style={styles.modalItem}>
+                <Text style={styles.modalLabel}>Backlogs:</Text>{" "}
+                {viewCompany.backlog}
+              </Text>
+              <Text style={styles.modalItem}>
+                <Text style={styles.modalLabel}>Branches:</Text>{" "}
+                {Array.isArray(viewCompany.branch)
+                  ? viewCompany.branch.join(", ")
+                  : "N/A"}
+              </Text>
+              <Text style={styles.modalItem}>
+                <Text style={styles.modalLabel}>Locations:</Text>{" "}
+                {Array.isArray(viewCompany.location)
+                  ? viewCompany.location.join(", ")
+                  : "N/A"}
+              </Text>
+              <Text style={styles.modalItem}>
+                <Text style={styles.modalLabel}>Gender:</Text>{" "}
+                {viewCompany.gender}
+              </Text>
+              <Text style={styles.modalItem}>
+                <Text style={styles.modalLabel}>Mode:</Text> {viewCompany.mode}
+              </Text>
+              <Text style={styles.modalItem}>
+                <Text style={styles.modalLabel}>Duration:</Text>{" "}
+                {viewCompany.duration}
+              </Text>
+              {viewCompany.requirements &&
+                viewCompany.requirements.length > 0 && (
+                  <View>
+                    <Text style={styles.modalItem}>
+                      <Text style={styles.modalLabel}>Requirements:</Text>{" "}
+                      {viewCompany.requirements.join(", ")}
+                    </Text>
+                  </View>
+                )}
+
+              {viewCompany.jobdescription &&
+                viewCompany.jobdescription.length > 0 && (
+                  <View>
+                    <Text style={styles.modalItem}>
+                      <Text style={styles.modalLabel}>Job Description:</Text>{" "}
+                      {viewCompany.jobdescription.join(", ")}
+                    </Text>
+                  </View>
+                )}
+
+              {viewCompany.selectionprocess &&
+                viewCompany.selectionprocess.length > 0 && (
+                  <View>
+                    <Text style={styles.modalItem}>
+                      <Text style={styles.modalLabel}>Selection Process:</Text>{" "}
+                      {viewCompany.selectionprocess.join(", ")}
+                    </Text>
+                  </View>
+                )}
+
+              {viewCompany.ppt && (
                 <View>
                   <Text style={styles.modalItem}>
-                    <Text style={styles.modalLabel}>Requirements:</Text>{" "}
-                    {viewCompany.requirements.join(", ")}
+                    <Text style={styles.modalLabel}>PPT:</Text>{" "}
+                    {viewCompany.ppt !== "To be announced"
+                      ? dateISOToLocaleString(viewCompany.ppt)
+                      : viewCompany.ppt}
                   </Text>
                 </View>
               )}
-
-            {viewCompany.jobdescription &&
-              viewCompany.jobdescription.length > 0 && (
+              {viewCompany.test && (
                 <View>
                   <Text style={styles.modalItem}>
-                    <Text style={styles.modalLabel}>Job Description:</Text>{" "}
-                    {viewCompany.jobdescription.join(", ")}
+                    <Text style={styles.modalLabel}>Test:</Text>{" "}
+                    {viewCompany.test !== "To be announced"
+                      ? dateISOToLocaleString(viewCompany.test)
+                      : viewCompany.test}
                   </Text>
                 </View>
               )}
-
-            {viewCompany.selectionprocess &&
-              viewCompany.selectionprocess.length > 0 && (
+              {viewCompany.interview && (
                 <View>
                   <Text style={styles.modalItem}>
-                    <Text style={styles.modalLabel}>Selection Process:</Text>{" "}
-                    {viewCompany.selectionprocess.join(", ")}
+                    <Text style={styles.modalLabel}>Interview:</Text>{" "}
+                    {viewCompany.interview !== "To be announced"
+                      ? dateISOToLocaleString(viewCompany.interview)
+                      : viewCompany.interview}
                   </Text>
                 </View>
               )}
-
-            {viewCompany.ppt && (
-              <View>
-                <Text style={styles.modalItem}>
-                  <Text style={styles.modalLabel}>PPT:</Text>{" "}
-                  {viewCompany.ppt !== "To be announced"
-                    ? dateISOToLocaleString(viewCompany.ppt)
-                    : viewCompany.ppt}
-                </Text>
-              </View>
-            )}
-            {viewCompany.test && (
-              <View>
-                <Text style={styles.modalItem}>
-                  <Text style={styles.modalLabel}>Test:</Text>{" "}
-                  {viewCompany.test !== "To be announced"
-                    ? dateISOToLocaleString(viewCompany.test)
-                    : viewCompany.test}
-                </Text>
-              </View>
-            )}
-            {viewCompany.interview && (
-              <View>
-                <Text style={styles.modalItem}>
-                  <Text style={styles.modalLabel}>Interview:</Text>{" "}
-                  {viewCompany.interview !== "To be announced"
-                    ? dateISOToLocaleString(viewCompany.interview)
-                    : viewCompany.interview}
-                </Text>
-              </View>
-            )}
-            <Text style={styles.modalItem}>
-              <Text style={styles.modalLabel}>Application Date:</Text>{" "}
-              {dateISOToLocaleString(viewCompany.applyby)}
-            </Text>
-            <TouchableOpacity
-              style={styles.closeButton}
-              onPress={() => setModalVisible(false)}>
-              <Text style={styles.buttonText}>Close</Text>
-            </TouchableOpacity>
+              <Text style={styles.modalItem}>
+                <Text style={styles.modalLabel}>Application Date:</Text>{" "}
+                {dateISOToLocaleString(viewCompany.applyby)}
+              </Text>
+              <TouchableOpacity
+                style={styles.closeButton}
+                onPress={() => setModalVisible(false)}>
+                <Text style={styles.buttonText}>Close</Text>
+              </TouchableOpacity>
+            </ScrollView>
           </View>
         </View>
       </Modal>
@@ -265,6 +269,9 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
     backgroundColor: "#f5f5f5",
+  },
+  scrollView: {
+    maxHeight: 700, // Adjust height as needed
   },
   title: {
     fontSize: 24,

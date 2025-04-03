@@ -13,7 +13,7 @@ import CircularLoaderScreen from "../../components/circularLoader";
 import { AuthContext } from "../../context/authContext";
 
 export default function Layout() {
-  const { token, removeToken } = useContext(AuthContext);
+  const { token, refresh, removeToken } = useContext(AuthContext);
   const [profilePic, setProfilePic] = useState("");
   const [profileEmail, setProfileEmail] = useState("");
   const [profileName, setProfileName] = useState("");
@@ -46,7 +46,7 @@ export default function Layout() {
     };
 
     fetchProfile();
-  }, [token]);
+  }, [token, refresh]);
   return loading ? (
     <CircularLoaderScreen />
   ) : (

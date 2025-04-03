@@ -18,7 +18,7 @@ import CircularLoaderScreen from "../../components/circularLoader";
 import { AuthContext } from "../../context/authContext";
 
 const MyProfile = () => {
-  const { token } = useContext(AuthContext);
+  const { token, refresh, setRefresh } = useContext(AuthContext);
   const [profile, setProfile] = useState({
     enroll: "",
     coverletter: "",
@@ -79,7 +79,7 @@ const MyProfile = () => {
     };
 
     fetchProfile();
-  }, [token]);
+  }, [token, refresh]);
 
   const handleImagePicker = async () => {
     const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
@@ -166,6 +166,7 @@ const MyProfile = () => {
           setGetResume(data.data.resume);
           setGetProfile(data.data.image);
           setLoading(false);
+          setRefresh(!refresh);
           Alert.alert("Profile updated successfully");
         } else {
           setLoading(false);

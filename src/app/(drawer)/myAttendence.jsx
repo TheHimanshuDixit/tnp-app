@@ -14,7 +14,7 @@ import { AuthContext } from "../../context/authContext";
 import Icon from "react-native-vector-icons/MaterialIcons";
 
 const PlacementAttendance = () => {
-  const { token } = useContext(AuthContext);
+  const { token, refresh } = useContext(AuthContext);
   const [companies, setCompanies] = useState([]);
   const [attendanceData, setAttendanceData] = useState({});
   const [selectedCompany, setSelectedCompany] = useState(null);
@@ -74,7 +74,7 @@ const PlacementAttendance = () => {
 
   useEffect(() => {
     fetchData();
-  }, [token]);
+  }, [token, refresh]);
 
   const openAttendanceModal = (company) => {
     setSelectedCompany(company);

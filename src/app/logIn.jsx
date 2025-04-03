@@ -47,7 +47,7 @@ const LogInScreen = () => {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [isPasswordVisible, setPasswordVisible] = useState(false);
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [loading, setLoading] = useState(false);
 
   // Redirect to home if already authenticated
@@ -102,7 +102,7 @@ const LogInScreen = () => {
         value={password}
         onChangeText={setPassword}
         isVisible={isPasswordVisible}
-        toggleVisibility={() => setPasswordVisible((prev) => !prev)}
+        toggleVisibility={() => setIsPasswordVisible((prev) => !prev)}
       />
 
       {/* Forgot Password */}

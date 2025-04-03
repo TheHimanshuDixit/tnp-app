@@ -21,6 +21,8 @@ const ApplyJobModal = ({
   selectedJob,
   allCompanies,
   token,
+  refresh,
+  setRefresh,
 }) => {
   const [form, setForm] = useState({
     name: "",
@@ -88,6 +90,7 @@ const ApplyJobModal = ({
         const data = await response.json();
         if (data.success === "success") {
           setLoading(false);
+          setRefresh((prev) => !prev);
           Alert.alert("Applied Successfully");
         } else {
           setLoading(false);
@@ -141,7 +144,7 @@ const ApplyJobModal = ({
     };
 
     fetchProfile();
-  }, [token]);
+  }, [token, refresh]);
 
   return loading ? (
     <CircularLoaderScreen />
@@ -351,6 +354,8 @@ ApplyJobModal.propTypes = {
   selectedJob: PropTypes.object.isRequired,
   allCompanies: PropTypes.array.isRequired,
   token: PropTypes.string.isRequired,
+  refresh: PropTypes.bool.isRequired,
+  setRefresh: PropTypes.func.isRequired,
 };
 
 export default ApplyJobModal;
