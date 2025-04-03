@@ -46,16 +46,13 @@ const MyProfile = () => {
       if (token) {
         setLoading(true);
         try {
-          const res = await fetch(
-            "https://placement-portall.onrender.com/api/auth/profile",
-            {
-              method: "GET",
-              headers: {
-                "Content-Type": "application/json",
-                "auth-token": token,
-              },
-            }
-          );
+          const res = await fetch("http://10.0.2.2:4000/api/auth/profile", {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              "auth-token": token,
+            },
+          });
 
           const data = await res.json();
           setLoading(false);
@@ -156,16 +153,13 @@ const MyProfile = () => {
           });
         }
 
-        const res = await fetch(
-          "https://placement-portall.onrender.com/api/auth/profile",
-          {
-            method: "POST",
-            headers: {
-              "auth-token": token,
-            },
-            body: formData,
-          }
-        );
+        const res = await fetch("http://10.0.2.2:4000/api/auth/profile", {
+          method: "POST",
+          headers: {
+            "auth-token": token,
+          },
+          body: formData,
+        });
 
         const data = await res.json();
         if (data.message === "success") {

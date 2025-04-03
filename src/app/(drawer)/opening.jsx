@@ -71,9 +71,7 @@ const JobListingScreen = () => {
   useEffect(() => {
     // eslint-disable-next-line
     const data = (async () => {
-      const response = await fetch(
-        "https://placement-portall.onrender.com/api/opening/getall"
-      );
+      const response = await fetch("http://10.0.2.2:4000/api/opening/getall");
       const data = await response.json();
       setAllCompanies(data.data);
       let ongoingOpen = data.data.filter((item) => {

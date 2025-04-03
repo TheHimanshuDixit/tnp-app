@@ -27,16 +27,13 @@ const ForgotPasswordScreen = () => {
     // Here you can add the logic to send the reset link (e.g., API call)
     setLoading(true);
     e.preventDefault();
-    const data = await fetch(
-      "https://placement-portall.onrender.com/api/auth/forgot",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email }),
-      }
-    );
+    const data = await fetch("http://10.0.2.2:4000/api/auth/forgot", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email }),
+    });
     const response = await data.json();
     if (response.message === "Email sent") {
       setLoading(false);
@@ -69,16 +66,13 @@ const ForgotPasswordScreen = () => {
       Alert.alert("Error", "Invalid OTP!");
       return;
     }
-    const data = await fetch(
-      "https://placement-portall.onrender.com/api/auth/updatepassword",
-      {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, newPassword }),
-      }
-    );
+    const data = await fetch("http://10.0.2.2:4000/api/auth/updatepassword", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email, newPassword }),
+    });
     const response = await data.json();
     if (response.message === "success") {
       setLoading(false);

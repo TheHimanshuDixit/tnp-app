@@ -24,16 +24,13 @@ const Contact = () => {
       return;
     }
     setLoading(true);
-    const response = await fetch(
-      "https://placement-portall.onrender.com/api/contact/send",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ name, email, message }),
-      }
-    );
+    const response = await fetch("http://10.0.2.2:4000/api/contact/send", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ name, email, message }),
+    });
     const data = await response.json();
     if (data.message === "Email sent") {
       setEmail("");

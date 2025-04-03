@@ -75,7 +75,7 @@ const ApplyJobModal = ({
         formData.append("phone", form.phone);
         formData.append("branch", form.branch);
         const response = await fetch(
-          `https://placement-portall.onrender.com/api/application/add/${selectedJob._id}`,
+          `http://10.0.2.2:4000/api/application/add/${selectedJob._id}`,
           {
             method: "POST",
             headers: {
@@ -105,15 +105,12 @@ const ApplyJobModal = ({
       if (token) {
         setLoading(true);
         try {
-          const res = await fetch(
-            "https://placement-portall.onrender.com/api/auth/profile",
-            {
-              method: "GET",
-              headers: {
-                "auth-token": token,
-              },
-            }
-          );
+          const res = await fetch("http://10.0.2.2:4000/api/auth/profile", {
+            method: "GET",
+            headers: {
+              "auth-token": token,
+            },
+          });
 
           const data = await res.json();
           setForm({

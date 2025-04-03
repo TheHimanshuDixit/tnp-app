@@ -22,7 +22,7 @@ const PlacementAttendance = () => {
   const fetchData = async () => {
     if (token) {
       setLoading(true);
-      fetch("https://placement-portall.onrender.com/api/student", {
+      fetch("http://10.0.2.2:4000/api/student", {
         method: "GET",
         headers: {
           "auth-token": token, // Replace with your actual token
