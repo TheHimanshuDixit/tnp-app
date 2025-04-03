@@ -1,5 +1,6 @@
 // components/JobDetailsModal.js
 import React from "react";
+import PropTypes from "prop-types";
 import {
   View,
   Text,
@@ -168,5 +169,24 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
 });
-
+JobDetailsModal.propTypes = {
+  modalVisible: PropTypes.bool.isRequired,
+  setModalVisible: PropTypes.func.isRequired,
+  selectedJob: PropTypes.shape({
+    name: PropTypes.string,
+    jobId: PropTypes.string,
+    role: PropTypes.string,
+    stipend: PropTypes.string,
+    ctc: PropTypes.string,
+    cgpacritera: PropTypes.string,
+    backlog: PropTypes.string,
+    branch: PropTypes.arrayOf(PropTypes.string),
+    location: PropTypes.arrayOf(PropTypes.string),
+    gender: PropTypes.string,
+    mode: PropTypes.string,
+    duration: PropTypes.string,
+    applyby: PropTypes.string,
+  }),
+  setApplyModalVisible: PropTypes.func.isRequired,
+};
 export default JobDetailsModal;

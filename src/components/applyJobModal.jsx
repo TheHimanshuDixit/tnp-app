@@ -13,6 +13,7 @@ import {
 import * as DocumentPicker from "expo-document-picker";
 import { WebView } from "react-native-webview";
 import CircularLoaderScreen from "./circularLoader";
+import PropTypes from "prop-types";
 
 const ApplyJobModal = ({
   applyModalVisible,
@@ -85,7 +86,7 @@ const ApplyJobModal = ({
           }
         );
         const data = await response.json();
-        if (data.message === "success") {
+        if (data.success === "success") {
           setLoading(false);
           Alert.alert("Applied Successfully");
         } else {
@@ -125,12 +126,12 @@ const ApplyJobModal = ({
           setPlaced(data.placed);
           setGetResume(data.resume);
           setLoading(false);
-          for (let i = 0; i < allCompanies.length; i++) {
+          for (const company of allCompanies) {
             if (
-              data.companys.includes(allCompanies[i]._id) &&
-              parseInt(allCompanies[i].ctc) > parseInt(studentPackage)
+              data.companys.includes(company._id) &&
+              parseInt(company.ctc) > parseInt(studentPackage)
             ) {
-              setStudentPackage(allCompanies[i].ctc);
+              setStudentPackage(company.ctc);
             }
           }
         } catch (error) {
@@ -344,5 +345,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
 });
+ApplyJobModal.propTypes = {
+  applyModalVisible: PropTypes.bool.isRequired,
+  setApplyModalVisible: PropTypes.func.isRequired,
+  selectedJob: PropTypes.object.isRequired,
+  allCompanies: PropTypes.array.isRequired,
+  token: PropTypes.string.isRequired,
+};
 
 export default ApplyJobModal;

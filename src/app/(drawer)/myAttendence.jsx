@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import { Table, Row } from "react-native-table-component";
 import CircularLoaderScreen from "../../components/circularLoader";
-import { AuthContext } from "../AuthContext";
+import { AuthContext } from "../../context/authContext";
 
 const PlacementAttendance = () => {
   const { token } = useContext(AuthContext);

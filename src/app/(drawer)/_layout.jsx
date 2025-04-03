@@ -10,7 +10,7 @@ import {
 import logo from "../../assets/images/logo.png";
 import { useRouter } from "expo-router";
 import CircularLoaderScreen from "../../components/circularLoader";
-import { AuthContext } from "../AuthContext";
+import { AuthContext } from "../../context/authContext";
 
 export default function Layout() {
   const { token, removeToken } = useContext(AuthContext);
@@ -73,7 +73,7 @@ export default function Layout() {
           }}
         />
         <Drawer.Screen
-          name="myprofile"
+          name="myProfile"
           options={{
             drawerLabel: "My Profile",
             title: "My Profile",
@@ -85,7 +85,7 @@ export default function Layout() {
           initialParams={{ token }}
         />
         <Drawer.Screen
-          name="myattendence"
+          name="myAttendence"
           options={{
             drawerLabel: "My Attendance",
             title: "My Attendance",
@@ -109,7 +109,7 @@ export default function Layout() {
           initialParams={{ token }}
         />
         <Drawer.Screen
-          name="myapplication"
+          name="myApplication"
           options={{
             drawerLabel: "My Applications",
             title: "My Applications",
@@ -202,7 +202,7 @@ function CustomDrawerContent(props) {
                 onPress: async () => {
                   await props.removeToken();
                   console.log("OK Pressed");
-                  router.navigate("/login");
+                  router.navigate("/logIn");
                 },
               },
             ]);

@@ -4,18 +4,6 @@ import Carousel from "react-native-reanimated-carousel";
 
 const testimonials = [
   {
-    name: "Srishti Garg",
-    position: "Google",
-    image: require("../assets/images/Srishti.jpg"), // Adjust the path as necessary
-    text: "Thanks to the exceptional support and resources provided by our college's training and placement website, I successfully secured a position as a Software Development Engineer at Google.",
-  },
-  {
-    name: "Divya",
-    position: "Morgan Stanley",
-    image: require("../assets/images/Divya.jpg"),
-    text: "Thanks to the training and placement platform, I secured a role as a Software Development Engineer at Morgan Stanley. The seamless user interface and guidance through the application process were invaluable in achieving my goals.",
-  },
-  {
     name: "Himanshu Dixit",
     position: "Fidelity International",
     image: require("../assets/images/Himanshu.jpg"),
@@ -23,10 +11,22 @@ const testimonials = [
   },
   {
     name: "Kamal Garg",
-    position: "Cadence",
+    position: "Zscaler",
     image: require("../assets/images/Kamal.png"),
-    text: "The training and placement platform of our college played a crucial role in helping me secure my position as a Software Development Engineer at Cadence. Its resources were indispensable.",
+    text: "The training and placement platform of our college played a crucial role in helping me secure my position as a Software Development Engineer at Zscaler. Its resources were indispensable.",
   },
+  {
+    name: "Srishti Garg",
+    position: "Google",
+    image: require("../assets/images/Srishti.jpg"), // Adjust the path as necessary
+    text: "Thanks to the exceptional support and resources provided by our college's training and placement website, I successfully secured a position as a Software Development Engineer at Google.",
+  },
+  {
+    name: "Divya",
+    position: "Kickdrum",
+    image: require("../assets/images/Divya.jpg"),
+    text: "Thanks to the training and placement platform, I secured a role as a Software Development Engineer at Kickdrum. The seamless user interface and guidance through the application process were invaluable in achieving my goals.",
+  }
 ];
 
 const TestimonialCarousel = () => {
@@ -39,8 +39,6 @@ const TestimonialCarousel = () => {
     carouselRef.current?.next();
   };
 
-  const [currentIndex, setCurrentIndex] = React.useState(0);
-
   const renderItem = ({ item }) => {
     return (
       <View style={styles.itemContainer}>
@@ -52,7 +50,6 @@ const TestimonialCarousel = () => {
     );
   };
 
-
   return (
     <View style={styles.container}>
       <Carousel
@@ -61,7 +58,6 @@ const TestimonialCarousel = () => {
         renderItem={renderItem}
         width={300} // Set according to your design
         height={400} // Set according to your design
-        onSnapToItem={(index) => setCurrentIndex(index)}
       />
       <View style={styles.button}>
         <TouchableOpacity style={styles.leftArrow} onPress={goToPrevious}>

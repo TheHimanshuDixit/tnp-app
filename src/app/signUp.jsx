@@ -12,7 +12,7 @@ import { useNavigation } from "expo-router";
 import CircularLoaderScreen from "../components/circularLoader";
 import { useRoute } from "@react-navigation/native";
 
-const SignupScreen = () => {
+const SignUpScreen = () => {
   const route = useRoute();
   const { storeToken } = route.params || {};
   const [name, setName] = useState("");
@@ -21,8 +21,8 @@ const SignupScreen = () => {
   const [enrollnment, setEnrollnment] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState(""); // Confirm password state
-  const [isPasswordVisible, setPasswordVisible] = useState(false); // State to toggle password visibility
-  const [isConfirmPasswordVisible, setConfirmPasswordVisible] = useState(false); // State to toggle confirm password visibility
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false); // State to toggle password visibility
+  const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] = useState(false); // State to toggle confirm password visibility
   const navigator = useNavigation();
   const [loading, setLoading] = useState(false);
 
@@ -42,7 +42,7 @@ const SignupScreen = () => {
     });
     const data = await response.json();
     console.log(data);
-    if (data.message === "success") {
+    if (data.success === "success") {
       setLoading(false);
       await storeToken("authToken", data.authToken);
       setName("");
@@ -111,7 +111,7 @@ const SignupScreen = () => {
         />
         <TouchableOpacity
           style={styles.eyeIcon}
-          onPress={() => setPasswordVisible(!isPasswordVisible)}>
+          onPress={() => setIsPasswordVisible(!isPasswordVisible)}>
           <Ionicons
             name={isPasswordVisible ? "eye-off-outline" : "eye-outline"}
             size={24}
@@ -132,7 +132,7 @@ const SignupScreen = () => {
         />
         <TouchableOpacity
           style={styles.eyeIcon}
-          onPress={() => setConfirmPasswordVisible(!isConfirmPasswordVisible)}>
+          onPress={() => setIsConfirmPasswordVisible(!isConfirmPasswordVisible)}>
           <Ionicons
             name={isConfirmPasswordVisible ? "eye-off-outline" : "eye-outline"}
             size={24}
@@ -205,4 +205,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default SignupScreen;
+export default SignUpScreen;

@@ -1,5 +1,5 @@
 // src/app/_layout.jsx
-import React, { useEffect } from "react";
+import React, { useEffect, useCallback } from "react";
 import { Drawer } from "expo-router/drawer";
 import * as SplashScreen from "expo-splash-screen";
 import {
@@ -7,39 +7,41 @@ import {
   Poppins_400Regular_Italic as ita,
   useFonts,
 } from "@expo-google-fonts/poppins";
-import { AuthProvider } from "./AuthContext"; // Import the AuthProvider
+import { AuthProvider } from "../context/authContext"; // Import the AuthProvider
 
+// Prevent splash screen from hiding automatically
 SplashScreen.preventAutoHideAsync();
 
-const _layout = () => {
-  const [loaded, error] = useFonts({
-    reg,
-    ita,
-  });
+const Layout = () => {
+  const [fontsLoaded, fontError] = useFonts({ reg, ita });
+
+  const hideSplashScreen = useCallback(async () => {
+    if (fontsLoaded || fontError) {
+      await SplashScreen.hideAsync();
+    }
+  }, [fontsLoaded, fontError]);
 
   useEffect(() => {
-    if (loaded || error) {
-      SplashScreen.hideAsync();
-    }
-  }, [loaded, error]);
+    hideSplashScreen();
+  }, [hideSplashScreen]);
 
-  if (!loaded && !error) {
+  if (!fontsLoaded && !fontError) {
     return null;
   }
 
   return (
     <AuthProvider>
-      <Drawer
-        screenOptions={{
-          headerShown: false,
-        }}>
-        <Drawer.Screen name="index" options={{ headerShown: false }} />
-        <Drawer.Screen name="(drawer)" options={{ headerShown: false }} />
-        <Drawer.Screen name="signup" options={{ headerShown: false }} />
-        <Drawer.Screen name="forgotpassword" options={{ headerShown: false }} />
+      <Drawer screenOptions={{ headerShown: false }}>
+        {["index", "(drawer)", "signUp", "forgotPassword"].map((screen) => (
+          <Drawer.Screen
+            key={screen}
+            name={screen}
+            options={{ headerShown: false }}
+          />
+        ))}
       </Drawer>
     </AuthProvider>
   );
 };
 
-export default _layout;
+export default Layout;

@@ -11,53 +11,76 @@ import {
 import Icon from "react-native-vector-icons/FontAwesome";
 
 import CircularLoaderScreen from "../components/circularLoader";
-import { AuthContext } from "./AuthContext";
+import { AuthContext } from "../context/authContext";
+import PropTypes from "prop-types";
 
-const Login = () => {
+const PasswordInput = ({
+  value,
+  onChangeText,
+  isVisible,
+  toggleVisibility,
+}) => (
+  <View style={styles.passwordContainer}>
+    <TextInput
+      style={styles.inputPassword}
+      placeholder="Password"
+      placeholderTextColor="#888"
+      secureTextEntry={!isVisible}
+      value={value}
+      onChangeText={onChangeText}
+    />
+    <TouchableOpacity style={styles.togglePassword} onPress={toggleVisibility}>
+      <Icon name={isVisible ? "eye" : "eye-slash"} size={20} color="#888" />
+    </TouchableOpacity>
+  </View>
+);
+PasswordInput.propTypes = {
+  value: PropTypes.string.isRequired,
+  onChangeText: PropTypes.func.isRequired,
+  isVisible: PropTypes.bool.isRequired,
+  toggleVisibility: PropTypes.func.isRequired,
+};
+
+const LogInScreen = () => {
   const { token, storeToken } = useContext(AuthContext);
+  const navigation = useNavigation();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [hidePassword, setHidePassword] = useState(true);
+  const [isPasswordVisible, setPasswordVisible] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const navigator = useNavigation();
-
+  // Redirect to home if already authenticated
   useEffect(() => {
-    if (token) {
-      navigator.navigate("(drawer)");
-    }
-  }, []);
+    if (token) navigation.navigate("(drawer)");
+  }, [token]);
 
-  const handleLogin = async (e) => {
+  const handleLogin = async () => {
     setLoading(true);
-    const response = await fetch("http://10.0.2.2:4000/api/auth/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ email, password }),
-    });
-    const data = await response.json();
-    if (data.message === "success") {
-      await storeToken("authToken", data.authToken);
+    try {
+      const response = await fetch("http://10.0.2.2:4000/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+      if (data.success === "success") {
+        await storeToken("authToken", data.authToken);
+        Alert.alert("Login successful");
+        navigation.navigate("(drawer)");
+      } else {
+        Alert.alert("Login failed", data.message || "Invalid credentials");
+      }
+    } catch (error) {
+      Alert.alert("Error", "Something went wrong. Please try again.");
+    } finally {
       setLoading(false);
       setEmail("");
       setPassword("");
-      Alert.alert("Login successful");
-      navigator.navigate("(drawer)");
-    } else {
-      Alert.alert("Login failed");
-      setLoading(false);
     }
   };
 
-  const handleForgotPassword = () => {
-    navigator.navigate("forgotpassword");
-  };
-  const handleSignup = () => {
-    navigator.navigate("signup"); // Navigate to Signup screen
-  };
   return loading ? (
     <CircularLoaderScreen />
   ) : (
@@ -71,45 +94,31 @@ const Login = () => {
         placeholderTextColor="#888"
         keyboardType="email-address"
         value={email}
-        onChangeText={(text) => setEmail(text)}
+        onChangeText={setEmail}
       />
 
       {/* Password Input */}
-      <View style={styles.passwordContainer}>
-        <TextInput
-          style={styles.inputPassword}
-          placeholder="Password"
-          placeholderTextColor="#888"
-          secureTextEntry={hidePassword}
-          value={password}
-          onChangeText={(text) => setPassword(text)}
-        />
-        <TouchableOpacity
-          style={styles.togglePassword}
-          onPress={() => setHidePassword(!hidePassword)}>
-          <Icon
-            name={hidePassword ? "eye-slash" : "eye"}
-            size={20}
-            color="#888"
-          />
-        </TouchableOpacity>
-      </View>
+      <PasswordInput
+        value={password}
+        onChangeText={setPassword}
+        isVisible={isPasswordVisible}
+        toggleVisibility={() => setPasswordVisible((prev) => !prev)}
+      />
 
       {/* Forgot Password */}
-      <TouchableOpacity onPress={handleForgotPassword}>
+      <TouchableOpacity onPress={() => navigation.navigate("forgotpassword")}>
         <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
       </TouchableOpacity>
 
       {/* Login Button */}
       <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
-        <Text style={styles.loginButtonText} onPress={handleLogin}>
-          Login
-        </Text>
+        <Text style={styles.loginButtonText}>Login</Text>
       </TouchableOpacity>
 
+      {/* Signup Navigation */}
       <View style={styles.signupContainer}>
         <Text style={styles.signupText}>Don't have an account?</Text>
-        <TouchableOpacity onPress={handleSignup}>
+        <TouchableOpacity onPress={() => navigation.navigate("signup")}>
           <Text style={styles.signupLink}> Create one</Text>
         </TouchableOpacity>
       </View>
@@ -139,7 +148,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     marginBottom: 20,
     backgroundColor: "#fff",
-    color: "#333",
     fontSize: 16,
   },
   passwordContainer: {
@@ -152,15 +160,8 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     marginBottom: 20,
   },
-  inputPassword: {
-    flex: 1,
-    height: 50,
-    fontSize: 16,
-    color: "#333",
-  },
-  togglePassword: {
-    padding: 10,
-  },
+  inputPassword: { flex: 1, height: 50, fontSize: 16, color: "#333" },
+  togglePassword: { padding: 10 },
   forgotPasswordText: {
     color: "#007bff",
     fontSize: 16,
@@ -173,25 +174,14 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: "center",
   },
-  loginButtonText: {
-    color: "#fff",
-    fontSize: 18,
-    fontWeight: "bold",
-  },
+  loginButtonText: { color: "#fff", fontSize: 18, fontWeight: "bold" },
   signupContainer: {
     flexDirection: "row",
     justifyContent: "center",
     marginTop: 20,
   },
-  signupText: {
-    fontSize: 16,
-    color: "#333",
-  },
-  signupLink: {
-    fontSize: 16,
-    color: "#007bff",
-    fontWeight: "bold",
-  },
+  signupText: { fontSize: 16, color: "#333" },
+  signupLink: { fontSize: 16, color: "#007bff", fontWeight: "bold" },
 });
 
-export default Login;
+export default LogInScreen;

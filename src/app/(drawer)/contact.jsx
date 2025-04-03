@@ -32,7 +32,7 @@ const Contact = () => {
       body: JSON.stringify({ name, email, message }),
     });
     const data = await response.json();
-    if (data.message === "Email sent") {
+    if (data.success === "Email sent") {
       setEmail("");
       setName("");
       setMessage("");
@@ -105,6 +105,8 @@ const Contact = () => {
     </ScrollView>
   );
 };
+
+import PropTypes from "prop-types";
 
 const AccordionItem = ({ question, answer }) => {
   const [isCollapsed, setIsCollapsed] = useState(true);
@@ -209,5 +211,9 @@ const styles = StyleSheet.create({
     color: "#555",
   },
 });
+AccordionItem.propTypes = {
+  question: PropTypes.string.isRequired,
+  answer: PropTypes.string.isRequired,
+};
 
 export default Contact;

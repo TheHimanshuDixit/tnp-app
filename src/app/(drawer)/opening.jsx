@@ -12,7 +12,7 @@ import { MaterialIcons, FontAwesome } from "@expo/vector-icons";
 import JobDetailsModal from "../../components/jobDetailsModal";
 import ApplyJobModal from "../../components/applyJobModal";
 import CircularLoaderScreen from "../../components/circularLoader";
-import { AuthContext } from "../AuthContext";
+import { AuthContext } from "../../context/authContext";
 
 const JobCard = ({ job, onInfoPress, onApplyPress, CompTime }) => {
   return (

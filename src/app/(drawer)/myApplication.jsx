@@ -9,9 +9,9 @@ import {
 } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
 import CircularLoaderScreen from "../../components/circularLoader";
-import { AuthContext } from "../AuthContext";
+import { AuthContext } from "../../context/authContext";
 
-const Myapplications = () => {
+const MyApplications = () => {
   const { token } = useContext(AuthContext);
   const [applications, setApplications] = useState([]);
   const [company, setCompany] = useState({});
@@ -270,4 +270,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Myapplications;
+export default MyApplications;

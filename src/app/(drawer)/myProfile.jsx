@@ -15,7 +15,7 @@ import * as DocumentPicker from "expo-document-picker";
 import { ScrollView } from "react-native-gesture-handler";
 import { WebView } from "react-native-webview";
 import CircularLoaderScreen from "../../components/circularLoader";
-import { AuthContext } from "../AuthContext";
+import { AuthContext } from "../../context/authContext";
 
 const MyProfile = () => {
   const { token } = useContext(AuthContext);
@@ -162,14 +162,14 @@ const MyProfile = () => {
         });
 
         const data = await res.json();
-        if (data.message === "success") {
+        if (data.success === "success") {
           setGetResume(data.data.resume);
           setGetProfile(data.data.image);
           setLoading(false);
           Alert.alert("Profile updated successfully");
         } else {
           setLoading(false);
-          Alert.alert("Failed to update profile", data.message);
+          Alert.alert("Failed to update profile", data.success);
           setProfilePhoto(null);
           setResume(null);
         }
