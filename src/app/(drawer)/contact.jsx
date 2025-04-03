@@ -32,7 +32,7 @@ const Contact = () => {
       body: JSON.stringify({ name, email, message }),
     });
     const data = await response.json();
-    if (data.success === "Email sent") {
+    if (data.success === "success") {
       setEmail("");
       setName("");
       setMessage("");

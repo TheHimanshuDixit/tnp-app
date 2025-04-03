@@ -66,6 +66,18 @@ const MyApplications = () => {
     fetchData();
   }, [token]);
 
+  const dateISOToLocaleString = (isoString) => {
+    const date = new Date(isoString);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are 0-indexed
+    const day = String(date.getDate()).padStart(2, "0");
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+
+    const localDateTimeString = `${hours}:${minutes}, ${day}-${month}-${year}`;
+    return localDateTimeString; // Output: 2025-03-26T16:00:00
+  };
+
   // Render a single application item
   const renderItem = ({ item: application, index }) => (
     <View style={styles.item}>
@@ -97,6 +109,13 @@ const MyApplications = () => {
       <Text style={styles.subtitle}>
         Please review the status of your applications.
       </Text>
+      <View style={styles.itemHeader}>
+        <Text style={styles.no}>No</Text>
+        <Text style={styles.comp}>Company</Text>
+        <Text style={styles.jd}>Job Id</Text>
+        <Text style={styles.ad}>Apply Date</Text>
+        <Text style={styles.v}>View</Text>
+      </View>
       <FlatList
         data={applications}
         renderItem={renderItem}
@@ -119,10 +138,10 @@ const MyApplications = () => {
             </Text>
             <Text style={styles.modalItem}>
               <Text style={styles.modalLabel}>Stipend:</Text>{" "}
-              {viewCompany.stipend}
+              {viewCompany.stipend} PM
             </Text>
             <Text style={styles.modalItem}>
-              <Text style={styles.modalLabel}>CTC:</Text> {viewCompany.ctc}
+              <Text style={styles.modalLabel}>CTC:</Text> {viewCompany.ctc} LPA
             </Text>
             <Text style={styles.modalItem}>
               <Text style={styles.modalLabel}>Min CGPA:</Text>{" "}
@@ -155,13 +174,69 @@ const MyApplications = () => {
               <Text style={styles.modalLabel}>Duration:</Text>{" "}
               {viewCompany.duration}
             </Text>
+            {viewCompany.requirements.length > 0 && (
+              <View>
+                <Text style={styles.modalItem}>
+                  <Text style={styles.modalLabel}>Requirements:</Text>{" "}
+                  {viewCompany.requirements.map((key) => {
+                    return key + ",";
+                  })}
+                </Text>
+              </View>
+            )}
+            {viewCompany.jobdescription.length > 0 && (
+              <View>
+                <Text style={styles.modalItem}>
+                  <Text style={styles.modalLabel}>Job Description:</Text>{" "}
+                  {viewCompany.jobdescription.map((key) => {
+                    return key + ",";
+                  })}
+                </Text>
+              </View>
+            )}
+            {viewCompany.selectionprocess.length > 0 && (
+              <View>
+                <Text style={styles.modalItem}>
+                  <Text style={styles.modalLabel}>Selection Process:</Text>{" "}
+                  {viewCompany.selectionprocess.map((key) => {
+                    return key + ",";
+                  })}
+                </Text>
+              </View>
+            )}
+            {viewCompany.ppt && (
+              <View>
+                <Text style={styles.modalItem}>
+                  <Text style={styles.modalLabel}>PPT:</Text>{" "}
+                  {viewCompany.ppt !== "To be announced"
+                    ? dateISOToLocaleString(viewCompany.ppt)
+                    : viewCompany.ppt}
+                </Text>
+              </View>
+            )}
+            {viewCompany.test && (
+              <View>
+                <Text style={styles.modalItem}>
+                  <Text style={styles.modalLabel}>Test:</Text>{" "}
+                  {viewCompany.test !== "To be announced"
+                    ? dateISOToLocaleString(viewCompany.test)
+                    : viewCompany.test}
+                </Text>
+              </View>
+            )}
+            {viewCompany.interview && (
+              <View>
+                <Text style={styles.modalItem}>
+                  <Text style={styles.modalLabel}>Interview:</Text>{" "}
+                  {viewCompany.interview !== "To be announced"
+                    ? dateISOToLocaleString(viewCompany.interview)
+                    : viewCompany.interview}
+                </Text>
+              </View>
+            )}
             <Text style={styles.modalItem}>
               <Text style={styles.modalLabel}>Application Date:</Text>{" "}
-              {viewCompany.applyby
-                ? viewCompany.applyby.split("T")[1].split(".")[0] +
-                  ", " +
-                  viewCompany.applyby.split("T")[0]
-                : "N/A"}
+              {dateISOToLocaleString(viewCompany.applyby)}
             </Text>
             <TouchableOpacity
               style={styles.closeButton}
@@ -203,6 +278,38 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginBottom: 10,
     elevation: 3,
+  },
+  itemHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 15,
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    marginBottom: 10,
+    elevation: 3,
+  },
+  no: {
+    fontWeight: "bold",
+    marginRight: 10,
+  },
+  comp: {
+    fontWeight: "bold",
+    flex: 1,
+    marginRight: 5,
+  },
+  jd: {
+    fontWeight: "bold",
+    flex: 1,
+    marginRight: 5,
+  },
+  ad: {
+    fontWeight: "bold",
+    flex: 1,
+    marginRight: 5,
+  },
+  v: {
+    fontWeight: "bold",
+    marginRight: 5,
   },
   index: {
     fontWeight: "bold",

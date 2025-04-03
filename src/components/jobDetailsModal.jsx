@@ -16,6 +16,18 @@ const JobDetailsModal = ({
   selectedJob,
   setApplyModalVisible,
 }) => {
+  const dateISOToLocaleString = (isoString) => {
+    const date = new Date(isoString);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are 0-indexed
+    const day = String(date.getDate()).padStart(2, "0");
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+
+    const localDateTimeString = `${hours}:${minutes}, ${day}-${month}-${year}`;
+    return localDateTimeString; // Output: 2025-03-26T16:00:00
+  };
+
   return (
     <Modal
       animationType="slide"
@@ -81,12 +93,71 @@ const JobDetailsModal = ({
                 <Text style={styles.modalItemValue}>
                   {selectedJob.duration}
                 </Text>
-
+                {selectedJob.requirements.length > 0 && (
+                  <View>
+                    <Text style={styles.modalItemTitle}>Requirements:</Text>
+                    <Text style={styles.modalItemValue}>
+                      {selectedJob.requirements.map((key) => {
+                        return key + ",";
+                      })}
+                    </Text>
+                  </View>
+                )}
+                {selectedJob.jobdescription.length > 0 && (
+                  <View>
+                    <Text style={styles.modalItemTitle}>Job Description:</Text>
+                    <Text style={styles.modalItemValue}>
+                      {selectedJob.jobdescription.map((key) => {
+                        return key + ",";
+                      })}
+                    </Text>
+                  </View>
+                )}
+                {selectedJob.selectionprocess.length > 0 && (
+                  <View>
+                    <Text style={styles.modalItemTitle}>
+                      Selection Process:
+                    </Text>
+                    <Text style={styles.modalItemValue}>
+                      {selectedJob.selectionprocess.map((key) => {
+                        return key + ",";
+                      })}
+                    </Text>
+                  </View>
+                )}
+                {selectedJob.ppt && (
+                  <View>
+                    <Text style={styles.modalItemTitle}>PPT:</Text>
+                    <Text style={styles.modalItemValue}>
+                      {selectedJob.ppt !== "To be announced"
+                        ? dateISOToLocaleString(selectedJob.ppt)
+                        : selectedJob.ppt}
+                    </Text>
+                  </View>
+                )}
+                {selectedJob.test && (
+                  <View>
+                    <Text style={styles.modalItemTitle}>Test:</Text>
+                    <Text style={styles.modalItemValue}>
+                      {selectedJob.test !== "To be announced"
+                        ? dateISOToLocaleString(selectedJob.test)
+                        : selectedJob.test}
+                    </Text>
+                  </View>
+                )}
+                {selectedJob.interview && (
+                  <View>
+                    <Text style={styles.modalItemTitle}>Interview:</Text>
+                    <Text style={styles.modalItemValue}>
+                      {selectedJob.interview !== "To be announced"
+                        ? dateISOToLocaleString(selectedJob.interview)
+                        : selectedJob.interview}
+                    </Text>
+                  </View>
+                )}
                 <Text style={styles.modalItemTitle}>Apply By:</Text>
                 <Text style={styles.modalItemValue}>
-                  {selectedJob.applyby.split("T")[1].split(".")[0] +
-                    ", " +
-                    selectedJob.applyby.split("T")[0]}
+                  {dateISOToLocaleString(selectedJob.applyby)}
                 </Text>
               </View>
             )}
@@ -185,6 +256,12 @@ JobDetailsModal.propTypes = {
     gender: PropTypes.string,
     mode: PropTypes.string,
     duration: PropTypes.string,
+    requirements: PropTypes.arrayOf(PropTypes.string),
+    jobdescription: PropTypes.arrayOf(PropTypes.string),
+    selectionprocess: PropTypes.arrayOf(PropTypes.string),
+    ppt: PropTypes.string,
+    test: PropTypes.string,
+    interview: PropTypes.string,
     applyby: PropTypes.string,
   }),
   setApplyModalVisible: PropTypes.func.isRequired,

@@ -9,6 +9,7 @@ import {
   Alert,
 } from "react-native";
 import { MaterialIcons, FontAwesome } from "@expo/vector-icons";
+import PropTypes from "prop-types";
 import JobDetailsModal from "../../components/jobDetailsModal";
 import ApplyJobModal from "../../components/applyJobModal";
 import CircularLoaderScreen from "../../components/circularLoader";
@@ -30,7 +31,7 @@ const JobCard = ({ job, onInfoPress, onApplyPress, CompTime }) => {
       <View style={styles.divider} />
       <View style={styles.infoRow}>
         <FontAwesome name="money" size={20} color="#28a745" />
-        <Text style={styles.infoText}>{job.ctc}</Text>
+        <Text style={styles.infoText}>{job.ctc} LPA</Text>
       </View>
       <View style={styles.infoRow}>
         <MaterialIcons name="location-on" size={20} color="#007bff" />
@@ -85,11 +86,7 @@ const JobListingScreen = () => {
   const handleCompTime = (time) => {
     const d1 = new Date(time);
     const d2 = new Date();
-    if (d1 < d2) {
-      return true;
-    } else {
-      return false;
-    }
+    return d1 < d2;
   };
 
   const handleInfoPress = (job) => {
@@ -242,5 +239,11 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
 });
+JobCard.propTypes = {
+  job: PropTypes.object.isRequired,
+  onInfoPress: PropTypes.func.isRequired,
+  onApplyPress: PropTypes.func.isRequired,
+  CompTime: PropTypes.func.isRequired,
+};
 
 export default JobListingScreen;

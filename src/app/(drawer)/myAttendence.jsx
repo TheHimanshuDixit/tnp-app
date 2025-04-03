@@ -6,10 +6,12 @@ import {
   Modal,
   StyleSheet,
   FlatList,
+  ScrollView,
 } from "react-native";
 import { Table, Row } from "react-native-table-component";
 import CircularLoaderScreen from "../../components/circularLoader";
 import { AuthContext } from "../../context/authContext";
+import Icon from "react-native-vector-icons/MaterialIcons";
 
 const PlacementAttendance = () => {
   const { token } = useContext(AuthContext);
@@ -19,20 +21,31 @@ const PlacementAttendance = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [loading, setLoading] = useState(true);
 
+  const dateISOToLocaleString = (isoString) => {
+    const date = new Date(isoString);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+
+    return `${hours}:${minutes}, ${day}-${month}-${year}`;
+  };
+
   const fetchData = async () => {
     if (token) {
       setLoading(true);
       fetch("http://10.0.2.2:4000/api/student", {
         method: "GET",
         headers: {
-          "auth-token": token, // Replace with your actual token
+          "auth-token": token,
         },
       })
         .then((response) => response.json())
         .then((data) => {
           setLoading(false);
           const fetchedCompanies = data.data.map((item, index) => ({
-            id: (index + 1).toString(), // Convert index to string for ID
+            id: (index + 1).toString(),
             name: item.company.name,
           }));
 
@@ -40,16 +53,15 @@ const PlacementAttendance = () => {
             const companyName = item.company.name;
             acc[companyName] = item.event.map((e) => ({
               event: e.event,
-              date: new Date(e.date).toLocaleDateString("en-GB"), // Format date as DD/MM/YYYY
-              status: "Present", // Default status
+              date: e.date,
+              status: e.status,
             }));
             return acc;
           }, {});
 
-          // Handle companies with no events
           fetchedCompanies.forEach((company) => {
             if (!fetchedAttendanceData[company.name]) {
-              fetchedAttendanceData[company.name] = []; // Add empty array if no events
+              fetchedAttendanceData[company.name] = [];
             }
           });
 
@@ -61,7 +73,6 @@ const PlacementAttendance = () => {
   };
 
   useEffect(() => {
-    // Fetch attendance data from API
     fetchData();
   }, [token]);
 
@@ -78,17 +89,25 @@ const PlacementAttendance = () => {
   const renderAttendanceTable = () => {
     const data = attendanceData[selectedCompany] || [];
     const tableHead = ["Event", "Date", "Status"];
-    const tableData = data.map((item) => [item.event, item.date, item.status]);
+    const tableData = data.map((item) => [
+      item.event,
+      dateISOToLocaleString(item.date),
+      item.status,
+    ]);
 
     return (
       <Table borderStyle={styles.tableBorder}>
-        <Row data={tableHead} style={styles.head} textStyle={styles.text} />
+        <Row
+          data={tableHead}
+          style={styles.head}
+          textStyle={styles.headText}
+        />
         {tableData.map((rowData, index) => (
           <Row
             key={index}
             data={rowData}
             style={styles.row}
-            textStyle={styles.text}
+            textStyle={styles.text} // Ensure it's an object
           />
         ))}
       </Table>
@@ -99,30 +118,46 @@ const PlacementAttendance = () => {
     <CircularLoaderScreen />
   ) : (
     <View style={styles.container}>
-      <Text style={styles.title}>Placement Attendance</Text>
+      <View style={styles.titleContainer}>
+        <Icon name="event-available" size={28} color="#007BFF" />
+        <Text style={styles.title}> Placement Attendance</Text>
+      </View>
       <FlatList
         data={companies}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <TouchableOpacity
-            style={styles.companyButton}
+            style={styles.companyCard}
             onPress={() => openAttendanceModal(item.name)}>
+            <Icon
+              name="business"
+              size={24}
+              color="#fff"
+              style={styles.companyIcon}
+            />
             <Text style={styles.companyText}>{item.name}</Text>
+            <Icon name="chevron-right" size={24} color="white" />
           </TouchableOpacity>
         )}
       />
 
       <Modal
         animationType="slide"
-        transparent={false}
+        transparent={true}
         visible={modalVisible}
         onRequestClose={closeModal}>
-        <View style={styles.modalContainer}>
-          <Text style={styles.modalTitle}>{selectedCompany}</Text>
-          {renderAttendanceTable()}
-          <TouchableOpacity onPress={closeModal} style={styles.closeButton}>
-            <Text style={styles.closeButtonText}>Close</Text>
-          </TouchableOpacity>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContainer}>
+            <View style={styles.modalTitleContainer}>
+              <Icon name="business-center" size={24} color="#007BFF" />
+              <Text style={styles.modalTitle}> {selectedCompany}</Text>
+            </View>
+            <ScrollView>{renderAttendanceTable()}</ScrollView>
+            <TouchableOpacity onPress={closeModal} style={styles.closeButton}>
+              <Icon name="close" size={20} color="#fff" />
+              <Text style={styles.closeButtonText}> Close</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </Modal>
     </View>
@@ -133,57 +168,100 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
+    backgroundColor: "#F0F4F8",
+  },
+  titleContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 20,
   },
   title: {
     fontSize: 24,
     fontWeight: "bold",
-    marginBottom: 20,
+    textAlign: "center",
+    color: "#007BFF",
   },
-  companyButton: {
-    padding: 15,
+  companyCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     backgroundColor: "#007BFF",
-    borderRadius: 5,
+    padding: 15,
+    borderRadius: 10,
     marginBottom: 10,
+    elevation: 5,
+  },
+  companyIcon: {
+    marginRight: 10,
   },
   companyText: {
+    flex: 1,
     color: "white",
     fontSize: 18,
+    fontWeight: "bold",
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "center",
+    alignItems: "center",
   },
   modalContainer: {
-    flex: 1,
+    width: "90%",
+    backgroundColor: "#fff",
+    borderRadius: 10,
     padding: 20,
+    elevation: 10,
+  },
+  modalTitleContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 10,
   },
   modalTitle: {
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: "bold",
-    marginBottom: 20,
+    textAlign: "center",
+    color: "#007BFF",
   },
   tableBorder: {
     borderWidth: 1,
     borderColor: "#c8e1ff",
   },
   head: {
-    height: 40,
-    backgroundColor: "#f1f8ff",
+    height: 50,
+    backgroundColor: "#007BFF",
+  },
+  headText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "bold",
+    textAlign: "center",
   },
   row: {
-    height: 60,
+    height: 50,
     backgroundColor: "#fff",
   },
   text: {
     margin: 6,
-    marginBottom: 0,
+    fontSize: 14,
+    textAlign: "center",
   },
   closeButton: {
     marginTop: 20,
-    padding: 10,
+    padding: 12,
     backgroundColor: "#FF5733",
-    borderRadius: 5,
+    borderRadius: 8,
+    flexDirection: "row",
     alignItems: "center",
+    justifyContent: "center",
   },
   closeButtonText: {
     color: "white",
     fontSize: 18,
+    marginLeft: 5,
   },
 });
 
